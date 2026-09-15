@@ -62,7 +62,6 @@
     .tip-title { font-weight: 700; font-size: 0.95rem; color: #f8fafc; margin-bottom: 0.4rem; }
     .tip-row { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.78rem; padding: 0.12rem 0; color: #cbd5e1; }
     .tip-row b { color: #f1f5f9; font-weight: 600; }
-    .tip-hint { font-size: 0.68rem; color: #64748b; margin-top: 0.35rem; }
     .legend {
         background: #111827;
         border: 1px solid #334155;
@@ -664,7 +663,15 @@ function corPorMetrica(dado, metrica) {
     return corPorValor(METRICAS[metrica].get(dado), metrica);
 }
 
-const map = L.map('map', { zoomControl: true, attributionControl: false }).setView([-29.9, -53.3], 7);
+const map = L.map('map', {
+    zoomControl: true,
+    attributionControl: false,
+    boxZoom: false,
+    minZoom: 6,
+    maxZoom: 12,
+    maxBounds: [[-35, -60], [-25, -47]],
+    maxBoundsViscosity: 1.0,
+}).setView([-29.9, -53.3], 7);
 
 // Sem tile de base (sem rios, estradas ou rótulos) — só os limites dos municípios,
 // desenhados diretamente sobre o fundo escuro da página.
@@ -702,7 +709,7 @@ function tooltipHtml(dado) {
     if (dado.gini) {
         rows += `<div class="tip-row"><span>Gini (2010)</span><b>${dado.gini.toFixed(2)}</b></div>`;
     }
-    return `<div class="tip-box"><div class="tip-title">${dado.nome}</div>${rows}<div class="tip-hint">github.com/henriquereolonpain-sys/renda-desigualdade-rs</div></div>`;
+    return `<div class="tip-box"><div class="tip-title">${dado.nome}</div>${rows}</div>`;
 }
 
 function onEachFeature(feature, layer) {
