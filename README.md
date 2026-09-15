@@ -68,7 +68,7 @@ O Índice de Gini municipal só existe calculado até o **Censo 2010**. O Censo 
 
 ## Mapa interativo
 
-`mapa.html` mostra as 29 cidades sobre o mapa do Rio Grande do Sul (contorno oficial via [API de malhas do IBGE](https://servicodados.ibge.gov.br/api/docs/malhas)), coloridas pela razão renda média/mediana, com tudo fora do RS esmaecido pra dar foco ao estado. Passar o mouse sobre uma cidade abre um popup com os indicadores disponíveis. Município sem dado no projeto aparece em cinza.
+`mapa.html` mostra as 29 cidades sobre os limites municipais do Rio Grande do Sul (contorno oficial via [API de malhas do IBGE](https://servicodados.ibge.gov.br/api/docs/malhas)), coloridas pela razão renda média/mediana. Sem tile de base (sem rios, estradas ou rótulos) — só os limites dos municípios sobre fundo escuro, com o contorno do estado destacado. Passar o mouse sobre uma cidade abre um popup com os indicadores disponíveis. Município sem dado no projeto aparece em cinza.
 
 Pra abrir localmente: como o navegador bloqueia `fetch` de arquivo local por CORS, sirva a pasta com qualquer servidor estático (ex.: `npx serve .` ou `python -m http.server`) e acesse `mapa.html`. Publicado via GitHub Pages, funciona direto.
 
