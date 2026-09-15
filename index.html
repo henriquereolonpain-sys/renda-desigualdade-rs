@@ -2,10 +2,110 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=mapa.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Renda e Desigualdade no Planalto Médio (RS)</title>
+<meta name="description" content="Salário médio, PIB per capita e concentração de renda em cidades do Planalto Médio gaúcho, com dados públicos do IBGE.">
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        line-height: 1.55;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    .eyebrow {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #38bdf8;
+        background: rgba(56,189,248,0.1);
+        border: 1px solid rgba(56,189,248,0.3);
+        border-radius: 999px;
+        padding: 0.3rem 0.7rem;
+        margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.9rem; font-weight: 800; color: #f8fafc; margin: 0 0 0.75rem; line-height: 1.25; }
+    .lead { font-size: 1.02rem; color: #94a3b8; margin: 0 0 2rem; max-width: 640px; }
+    .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #38bdf8;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.3rem;
+        border-radius: 8px;
+        text-decoration: none;
+        margin-bottom: 2.5rem;
+        transition: transform .15s ease, background .15s ease;
+    }
+    .cta:hover { background: #7dd3fc; transform: translateY(-1px); }
+    h2 { font-size: 1.15rem; color: #f1f5f9; margin: 2.2rem 0 0.75rem; }
+    p { color: #cbd5e1; font-size: 0.95rem; }
+    strong { color: #f8fafc; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.82rem; }
+    th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #1e293b; }
+    th { color: #94a3b8; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    td { color: #e2e8f0; }
+    td.num, th.num { text-align: right; }
+    .highlight { color: #fbbf24; font-weight: 700; }
+    .card {
+        background: #111827;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin: 1.5rem 0;
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+    .card b { color: #f1f5f9; }
+    .links { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #1e293b; font-size: 0.85rem; }
+    .links a { color: #38bdf8; text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+    footer { margin-top: 2rem; font-size: 0.75rem; color: #475569; }
+</style>
 </head>
 <body>
-<p>Redirecionando para <a href="mapa.html">o mapa</a>...</p>
+<div class="wrap">
+    <span class="eyebrow">Projeto de portfólio · Dados públicos IBGE</span>
+    <h1>Renda e Desigualdade no Planalto Médio (RS)</h1>
+    <p class="lead">Salário médio, PIB per capita e concentração de renda em cidades do Planalto Médio gaúcho, pra mostrar por que média sozinha não conta a história toda sobre riqueza de um município.</p>
+
+    <a class="cta" href="mapa.html">Ver mapa interativo →</a>
+
+    <h2>O achado</h2>
+    <p>O PIB per capita mais alto do grupo não é o de Passo Fundo, a cidade-polo da região. É o de <strong>Marau</strong> (R$ 82.844,93), puxado por indústria concentrada. Mas a renda mais concentrada é a de <strong>Passo Fundo</strong>: em 2022, a renda domiciliar per capita média (R$ 2.343) era <span class="highlight">1,56 vezes</span> a mediana (R$ 1.500), a maior razão média/mediana do grupo. Já <strong>Serafina Corrêa</strong> e <strong>Tapejara</strong> têm a renda mais igualmente distribuída (razão de 1,31), mesmo com PIB per capita mais baixo.</p>
+
+    <table>
+        <thead>
+            <tr><th>Cidade</th><th class="num">PIB per capita</th><th class="num">Razão renda média/mediana</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Passo Fundo</td><td class="num">R$ 68.227,53</td><td class="num highlight">1,56</td></tr>
+            <tr><td>Carazinho</td><td class="num">R$ 60.594,24</td><td class="num">1,44</td></tr>
+            <tr><td>Marau</td><td class="num"><strong>R$ 82.844,93</strong></td><td class="num">1,37</td></tr>
+            <tr><td>Tapejara</td><td class="num">R$ 76.169,60</td><td class="num">1,31</td></tr>
+            <tr><td>Serafina Corrêa</td><td class="num">R$ 58.281,73</td><td class="num">1,31</td></tr>
+        </tbody>
+    </table>
+
+    <div class="card">
+        <b>Por que isso importa:</b> PIB per capita é uma média. Um punhado de empresas grandes empurra esse número pra cima sem que o trabalhador médio veja um centavo a mais no salário. A razão entre renda média e mediana ataca o mesmo problema por outro ângulo: quanto mais perto de 1,0, mais parecida é a renda entre os moradores.
+    </div>
+
+    <h2>Fontes</h2>
+    <p>Dados públicos do IBGE: Cadastro Central de Empresas (salário médio e PIB per capita, 2023) e Censo Demográfico 2022 (renda domiciliar per capita, tabela SIDRA <a href="https://sidra.ibge.gov.br/tabela/10295" style="color:#38bdf8">10295</a>), complementados pelo Índice de Gini do <a href="https://www.atlasbrasil.org.br/perfil" style="color:#38bdf8">Atlas Brasil</a> (Censo 2010).</p>
+
+    <div class="links">
+        <a href="https://github.com/henriquereolonpain-sys/renda-desigualdade-rs">Repositório no GitHub</a> · metodologia completa, dataset e código-fonte do mapa
+    </div>
+
+    <footer>Henrique Pain · Projeto de portfólio / uso educacional</footer>
+</div>
 </body>
 </html>
