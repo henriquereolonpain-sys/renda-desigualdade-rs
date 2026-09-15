@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Renda e Desigualdade no Planalto Médio (RS)</title>
-<meta name="description" content="Salário médio, PIB per capita e concentração de renda em cidades do Planalto Médio gaúcho, com dados públicos do IBGE.">
+<title>Renda e Desigualdade no Rio Grande do Sul</title>
+<meta name="description" content="PIB per capita e concentração de renda nas 29 maiores cidades do Rio Grande do Sul, com dados públicos do IBGE.">
 <style>
     * { box-sizing: border-box; }
     body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background: #0f172a;
-        color: #e2e8f0;
+        background: #f8fafc;
+        color: #1e293b;
         line-height: 1.55;
     }
     .wrap { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
@@ -21,76 +21,84 @@
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #38bdf8;
-        background: rgba(56,189,248,0.1);
-        border: 1px solid rgba(56,189,248,0.3);
+        color: #0369a1;
+        background: #e0f2fe;
+        border: 1px solid #bae6fd;
         border-radius: 999px;
         padding: 0.3rem 0.7rem;
         margin-bottom: 1rem;
     }
-    h1 { font-size: 1.9rem; font-weight: 800; color: #f8fafc; margin: 0 0 0.75rem; line-height: 1.25; }
-    .lead { font-size: 1.02rem; color: #94a3b8; margin: 0 0 2rem; max-width: 640px; }
+    h1 { font-size: 1.9rem; font-weight: 800; color: #0f172a; margin: 0 0 0.75rem; line-height: 1.25; }
+    .lead { font-size: 1.02rem; color: #64748b; margin: 0 0 2rem; max-width: 640px; }
     .cta {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: #38bdf8;
-        color: #0f172a;
+        background: #0284c7;
+        color: #ffffff;
         font-weight: 700;
         font-size: 0.95rem;
         padding: 0.75rem 1.3rem;
         border-radius: 8px;
         text-decoration: none;
         margin-bottom: 2.5rem;
+        box-shadow: 0 4px 14px rgba(2,132,199,0.28);
         transition: transform .15s ease, background .15s ease;
     }
-    .cta:hover { background: #7dd3fc; transform: translateY(-1px); }
-    h2 { font-size: 1.15rem; color: #f1f5f9; margin: 2.2rem 0 0.75rem; }
-    p { color: #cbd5e1; font-size: 0.95rem; }
-    strong { color: #f8fafc; }
-    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.82rem; }
-    th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #1e293b; }
-    th { color: #94a3b8; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
-    td { color: #e2e8f0; }
+    .cta:hover { background: #0369a1; transform: translateY(-1px); }
+    h2 { font-size: 1.15rem; color: #0f172a; margin: 2.2rem 0 0.75rem; }
+    p { color: #475569; font-size: 0.95rem; }
+    strong { color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.82rem; background: #fff; }
+    th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid #e2e8f0; }
+    th { color: #64748b; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    td { color: #1e293b; }
     td.num, th.num { text-align: right; }
-    .highlight { color: #fbbf24; font-weight: 700; }
+    .highlight { color: #c2410c; font-weight: 700; }
     .card {
-        background: #111827;
-        border: 1px solid #1e293b;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
         border-radius: 10px;
         padding: 1rem 1.25rem;
         margin: 1.5rem 0;
         font-size: 0.85rem;
-        color: #94a3b8;
+        color: #7c2d12;
     }
-    .card b { color: #f1f5f9; }
-    .links { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #1e293b; font-size: 0.85rem; }
-    .links a { color: #38bdf8; text-decoration: none; }
+    .card b { color: #7c2d12; }
+    .links { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; font-size: 0.85rem; }
+    .links a { color: #0284c7; text-decoration: none; }
     .links a:hover { text-decoration: underline; }
-    footer { margin-top: 2rem; font-size: 0.75rem; color: #475569; }
+    footer { margin-top: 2rem; font-size: 0.75rem; color: #94a3b8; }
 </style>
 </head>
 <body>
 <div class="wrap">
     <span class="eyebrow">Projeto de portfólio · Dados públicos IBGE</span>
-    <h1>Renda e Desigualdade no Planalto Médio (RS)</h1>
-    <p class="lead">Salário médio, PIB per capita e concentração de renda em cidades do Planalto Médio gaúcho, pra mostrar por que média sozinha não conta a história toda sobre riqueza de um município.</p>
+    <h1>Renda e Desigualdade no Rio Grande do Sul</h1>
+    <p class="lead">PIB per capita e concentração de renda nas 29 maiores cidades do estado (as 25 mais populosas + 4 do Planalto Médio gaúcho, origem deste projeto), pra mostrar por que média sozinha não conta a história toda sobre riqueza de um município.</p>
 
     <a class="cta" href="mapa.html">Ver mapa interativo →</a>
 
     <h2>O achado</h2>
-    <p>O PIB per capita mais alto do grupo não é o de Passo Fundo, a cidade-polo da região. É o de <strong>Marau</strong> (R$ 82.844,93), puxado por indústria concentrada. Mas a renda mais concentrada é a de <strong>Passo Fundo</strong>: em 2022, a renda domiciliar per capita média (R$ 2.343) era <span class="highlight">1,56 vezes</span> a mediana (R$ 1.500), a maior razão média/mediana do grupo. Já <strong>Serafina Corrêa</strong> e <strong>Tapejara</strong> têm a renda mais igualmente distribuída (razão de 1,31), mesmo com PIB per capita mais baixo.</p>
+    <p>A renda mais concentrada do estado é a de <strong>Porto Alegre</strong>: em 2022, a renda domiciliar per capita média da capital (R$ 3.203) era <span class="highlight">1,88 vezes</span> a mediana (R$ 1.700), a maior razão média/mediana entre as 29 cidades. No outro extremo, <strong>Alvorada</strong> (razão de 1,25) e as cidades do Planalto Médio como <strong>Serafina Corrêa</strong> e <strong>Tapejara</strong> (1,31) têm a renda mais igualmente distribuída.</p>
+    <p>PIB per capita também não segue a lógica óbvia de "cidade grande = mais rica per capita": <strong>Santa Cruz do Sul</strong> (R$ 96.885) e <strong>Guaíba</strong> (R$ 93.821) superam a própria Porto Alegre (R$ 75.420), puxadas por indústria concentrada.</p>
 
     <table>
         <thead>
             <tr><th>Cidade</th><th class="num">PIB per capita</th><th class="num">Razão renda média/mediana</th></tr>
         </thead>
         <tbody>
-            <tr><td>Passo Fundo</td><td class="num">R$ 68.227,53</td><td class="num highlight">1,56</td></tr>
-            <tr><td>Carazinho</td><td class="num">R$ 60.594,24</td><td class="num">1,44</td></tr>
-            <tr><td>Marau</td><td class="num"><strong>R$ 82.844,93</strong></td><td class="num">1,37</td></tr>
+            <tr><td>Porto Alegre</td><td class="num">R$ 75.420,47</td><td class="num highlight">1,88</td></tr>
+            <tr><td>Santa Maria</td><td class="num">R$ 38.711,54</td><td class="num">1,63</td></tr>
+            <tr><td>Pelotas</td><td class="num">R$ 37.129,02</td><td class="num">1,62</td></tr>
+            <tr><td>Passo Fundo</td><td class="num">R$ 68.227,53</td><td class="num">1,56</td></tr>
+            <tr><td>Novo Hamburgo</td><td class="num">R$ 50.621,42</td><td class="num">1,55</td></tr>
+            <tr style="opacity:.5"><td colspan="3" style="text-align:center;padding:0.3rem">⋯ 19 cidades no meio ⋯</td></tr>
+            <tr><td>Bento Gonçalves</td><td class="num">R$ 70.812,61</td><td class="num">1,33</td></tr>
             <tr><td>Tapejara</td><td class="num">R$ 76.169,60</td><td class="num">1,31</td></tr>
             <tr><td>Serafina Corrêa</td><td class="num">R$ 58.281,73</td><td class="num">1,31</td></tr>
+            <tr><td>Sapucaia do Sul</td><td class="num">R$ 34.629,16</td><td class="num">1,26</td></tr>
+            <tr><td>Alvorada</td><td class="num">R$ 21.281,63</td><td class="num">1,25</td></tr>
         </tbody>
     </table>
 
@@ -99,7 +107,7 @@
     </div>
 
     <h2>Fontes</h2>
-    <p>Dados públicos do IBGE: Cadastro Central de Empresas (salário médio e PIB per capita, 2023) e Censo Demográfico 2022 (renda domiciliar per capita, tabela SIDRA <a href="https://sidra.ibge.gov.br/tabela/10295" style="color:#38bdf8">10295</a>), complementados pelo Índice de Gini do <a href="https://www.atlasbrasil.org.br/perfil" style="color:#38bdf8">Atlas Brasil</a> (Censo 2010).</p>
+    <p>Dados públicos do IBGE: PIB per capita calculado a partir do PIB dos Municípios (SIDRA, tabela <a href="https://sidra.ibge.gov.br/tabela/5938" style="color:#0284c7">5938</a>) dividido pela população estimada, e renda domiciliar per capita do Censo Demográfico 2022 (SIDRA, tabela <a href="https://sidra.ibge.gov.br/tabela/10295" style="color:#0284c7">10295</a>). As 4 cidades do Planalto Médio de origem do projeto também têm salário médio e Índice de Gini (Censo 2010, via <a href="https://www.atlasbrasil.org.br/perfil" style="color:#0284c7">Atlas Brasil</a>).</p>
 
     <div class="links">
         <a href="https://github.com/henriquereolonpain-sys/renda-desigualdade-rs">Repositório no GitHub</a> · metodologia completa, dataset e código-fonte do mapa

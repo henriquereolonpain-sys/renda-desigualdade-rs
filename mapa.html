@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Renda e Desigualdade no Planalto Médio (RS)</title>
+<title>Renda e Desigualdade no Rio Grande do Sul</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     * { box-sizing: border-box; }
@@ -16,6 +16,11 @@
     header {
         padding: 1.25rem 1.5rem 0.75rem;
         border-bottom: 1px solid #1e293b;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
     header h1 {
         margin: 0 0 0.25rem;
@@ -27,9 +32,17 @@
         margin: 0;
         font-size: 0.85rem;
         color: #94a3b8;
-        max-width: 720px;
+        max-width: 640px;
         line-height: 1.4;
     }
+    header a.back {
+        font-size: 0.8rem;
+        color: #38bdf8;
+        text-decoration: none;
+        white-space: nowrap;
+        padding-top: 0.15rem;
+    }
+    header a.back:hover { text-decoration: underline; }
     #map {
         height: calc(100vh - 92px);
         width: 100%;
@@ -67,8 +80,11 @@
 <body>
 
 <header>
-    <h1>Renda e Desigualdade no Planalto Médio (RS)</h1>
-    <p>Passe o mouse sobre uma cidade colorida pra ver os indicadores. Cor = razão entre renda média e mediana per capita (2022): quanto mais escuro, mais concentrada a renda. Município cinza = sem dado neste projeto ainda.</p>
+    <div>
+        <h1>Renda e Desigualdade no Rio Grande do Sul</h1>
+        <p>Passe o mouse sobre uma cidade colorida pra ver os indicadores. Cor = razão entre renda média e mediana per capita (2022): quanto mais escuro, mais concentrada a renda. Município cinza = sem dado neste projeto ainda.</p>
+    </div>
+    <a class="back" href="index.html">← Voltar</a>
 </header>
 
 <div id="map"></div>
@@ -76,14 +92,38 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const CIDADES = {
-    "4314100": { nome: "Passo Fundo",       populacao: 214815, salario_sm: 2.6, pib: 68227.53, renda_media: 2343.36, renda_mediana: 1500.00, razao: 1.56, gini: 0.52 },
-    "4304705": { nome: "Carazinho",         populacao: 63671,  salario_sm: 2.5, pib: 60594.24, renda_media: 2049.08, renda_mediana: 1423.00, razao: 1.44, gini: 0.51 },
-    "4311809": { nome: "Marau",             populacao: 46750,  salario_sm: 2.4, pib: 82844.93, renda_media: 2256.96, renda_mediana: 1650.00, razao: 1.37, gini: 0.44 },
-    "4320909": { nome: "Tapejara",          populacao: 25257,  salario_sm: 2.2, pib: 76169.60, renda_media: 1867.41, renda_mediana: 1425.00, razao: 1.31, gini: 0.44 },
-    "4320404": { nome: "Serafina Corrêa",   populacao: 17407,  salario_sm: 2.3, pib: 58281.73, renda_media: 2126.45, renda_mediana: 1625.00, razao: 1.31, gini: 0.36 },
+    "4314902": { nome: "Porto Alegre",           populacao: 1388791, pib: 75420.47, renda_media: 3203.31, renda_mediana: 1700.00, razao: 1.884 },
+    "4316907": { nome: "Santa Maria",             populacao: 282397,  pib: 38711.54, renda_media: 2365.64, renda_mediana: 1450.00, razao: 1.631 },
+    "4314407": { nome: "Pelotas",                 populacao: 336150,  pib: 37129.02, renda_media: 1959.93, renda_mediana: 1212.00, razao: 1.617 },
+    "4314100": { nome: "Passo Fundo",             populacao: 214815,  salario_sm: 2.6, pib: 68227.53, renda_media: 2343.36, renda_mediana: 1500.00, razao: 1.562, gini: 0.52 },
+    "4313409": { nome: "Novo Hamburgo",           populacao: 235801,  pib: 50621.42, renda_media: 2138.48, renda_mediana: 1380.00, razao: 1.550 },
+    "4310207": { nome: "Ijuí",                    populacao: 87849,   pib: 69497.02, renda_media: 2280.37, renda_mediana: 1503.00, razao: 1.517 },
+    "4304606": { nome: "Canoas",                  populacao: 359845,  pib: 81053.50, renda_media: 2066.82, renda_mediana: 1380.00, razao: 1.498 },
+    "4318705": { nome: "São Leopoldo",            populacao: 225738,  pib: 52011.24, renda_media: 1922.89, renda_mediana: 1300.00, razao: 1.479 },
+    "4317103": { nome: "Sant'Ana do Livramento",  populacao: 87330,   pib: 35996.95, renda_media: 1600.16, renda_mediana: 1084.80, razao: 1.475 },
+    "4316808": { nome: "Santa Cruz do Sul",       populacao: 138273,  pib: 96885.28, renda_media: 2192.33, renda_mediana: 1500.00, razao: 1.462 },
+    "4322400": { nome: "Uruguaiana",              populacao: 120818,  pib: 32408.70, renda_media: 1566.17, renda_mediana: 1073.14, razao: 1.459 },
+    "4303004": { nome: "Cachoeira do Sul",        populacao: 82222,   pib: 41001.64, renda_media: 1757.97, renda_mediana: 1212.00, razao: 1.450 },
+    "4301602": { nome: "Bagé",                    populacao: 121929,  pib: 36207.69, renda_media: 1662.21, renda_mediana: 1150.00, razao: 1.445 },
+    "4304705": { nome: "Carazinho",               populacao: 63671,   salario_sm: 2.5, pib: 60594.24, renda_media: 2049.08, renda_mediana: 1423.00, razao: 1.440, gini: 0.51 },
+    "4311403": { nome: "Lajeado",                 populacao: 96883,   pib: 69209.53, renda_media: 2490.87, renda_mediana: 1760.00, razao: 1.415 },
+    "4307005": { nome: "Erechim",                 populacao: 109610,  pib: 77521.27, renda_media: 2385.71, renda_mediana: 1700.00, razao: 1.403 },
+    "4305108": { nome: "Caxias do Sul",           populacao: 479604,  pib: 78941.38, renda_media: 2330.62, renda_mediana: 1666.67, razao: 1.398 },
+    "4303103": { nome: "Cachoeirinha",            populacao: 141506,  pib: 54992.89, renda_media: 1884.12, renda_mediana: 1350.00, razao: 1.396 },
+    "4315602": { nome: "Rio Grande",              populacao: 198935,  pib: 70911.00, renda_media: 1671.01, renda_mediana: 1200.00, razao: 1.393 },
+    "4309308": { nome: "Guaíba",                  populacao: 95946,   pib: 93821.37, renda_media: 1668.25, renda_mediana: 1212.00, razao: 1.376 },
+    "4311809": { nome: "Marau",                   populacao: 46750,   salario_sm: 2.4, pib: 82844.93, renda_media: 2256.96, renda_mediana: 1650.00, razao: 1.368, gini: 0.44 },
+    "4309209": { nome: "Gravataí",                populacao: 275432,  pib: 56440.64, renda_media: 1696.73, renda_mediana: 1250.00, razao: 1.357 },
+    "4323002": { nome: "Viamão",                  populacao: 231994,  pib: 23902.27, renda_media: 1489.82, renda_mediana: 1100.00, razao: 1.354 },
+    "4317202": { nome: "Santa Rosa",              populacao: 79489,   pib: 56993.50, renda_media: 2122.58, renda_mediana: 1575.00, razao: 1.348 },
+    "4302105": { nome: "Bento Gonçalves",         populacao: 127980,  pib: 70812.61, renda_media: 2516.92, renda_mediana: 1900.00, razao: 1.325 },
+    "4320909": { nome: "Tapejara",                populacao: 25257,   salario_sm: 2.2, pib: 76169.60, renda_media: 1867.41, renda_mediana: 1425.00, razao: 1.310, gini: 0.44 },
+    "4320404": { nome: "Serafina Corrêa",         populacao: 17407,   salario_sm: 2.3, pib: 58281.73, renda_media: 2126.45, renda_mediana: 1625.00, razao: 1.309, gini: 0.36 },
+    "4320008": { nome: "Sapucaia do Sul",         populacao: 136573,  pib: 34629.16, renda_media: 1571.59, renda_mediana: 1250.00, razao: 1.257 },
+    "4300604": { nome: "Alvorada",                populacao: 194061,  pib: 21281.63, renda_media: 1332.84, renda_mediana: 1070.67, razao: 1.245 },
 };
 
-const RAZAO_MIN = 1.31, RAZAO_MAX = 1.56;
+const RAZAO_MIN = 1.245, RAZAO_MAX = 1.884;
 
 function corPorRazao(razao) {
     const t = Math.max(0, Math.min(1, (razao - RAZAO_MIN) / (RAZAO_MAX - RAZAO_MIN)));
@@ -104,34 +144,63 @@ function formatBRL(v) {
     return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
 }
 
-const map = L.map('map', { zoomControl: true, attributionControl: true }).setView([-28.6, -53.5], 7);
+const map = L.map('map', { zoomControl: true, attributionControl: true }).setView([-29.9, -53.3], 7);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
     maxZoom: 12,
 }).addTo(map);
 
+// --- Spotlight: escurece tudo fora do RS, focando o estado ---
+fetch('data/rs_estado.geojson')
+    .then(r => r.json())
+    .then(geo => {
+        const geom = geo.features[0].geometry;
+        const outer = [[-85, -180], [-85, 180], [85, 180], [85, -180]];
+        let holes = [];
+        const toLatLng = ring => ring.map(([lng, lat]) => [lat, lng]);
+        if (geom.type === 'Polygon') {
+            holes = geom.coordinates.map(toLatLng);
+        } else if (geom.type === 'MultiPolygon') {
+            geom.coordinates.forEach(poly => poly.forEach(ring => holes.push(toLatLng(ring))));
+        }
+        L.polygon([outer, ...holes], {
+            stroke: false,
+            fillColor: '#0f172a',
+            fillOpacity: 0.78,
+            interactive: false,
+        }).addTo(map);
+
+        L.geoJSON(geo, {
+            style: { fill: false, color: '#38bdf8', weight: 2, opacity: 0.9 },
+            interactive: false,
+        }).addTo(map);
+    })
+    .catch(() => {});
+
 function style(feature) {
     const dado = CIDADES[feature.properties.codarea];
     if (dado) {
-        return { fillColor: corPorRazao(dado.razao), weight: 1.6, color: '#f8fafc', fillOpacity: 0.88 };
+        return { fillColor: corPorRazao(dado.razao), weight: 1.4, color: '#f8fafc', fillOpacity: 0.9 };
     }
-    return { fillColor: '#1e293b', weight: 0.4, color: '#334155', fillOpacity: 0.45 };
+    return { fillColor: '#1e293b', weight: 0.3, color: '#334155', fillOpacity: 0.35 };
 }
 
 function tooltipHtml(dado) {
-    return `
-        <div class="tip-box">
-            <div class="tip-title">${dado.nome}</div>
-            <div class="tip-row"><span>População (2026)</span><b>${dado.populacao.toLocaleString('pt-BR')}</b></div>
-            <div class="tip-row"><span>Salário médio</span><b>${dado.salario_sm.toFixed(1)} SM</b></div>
-            <div class="tip-row"><span>PIB per capita</span><b>${formatBRL(dado.pib)}</b></div>
-            <div class="tip-row"><span>Renda média (2022)</span><b>${formatBRL(dado.renda_media)}</b></div>
-            <div class="tip-row"><span>Renda mediana (2022)</span><b>${formatBRL(dado.renda_mediana)}</b></div>
-            <div class="tip-row"><span>Razão média/mediana</span><b>${dado.razao.toFixed(2)}</b></div>
-            <div class="tip-row"><span>Gini (2010)</span><b>${dado.gini.toFixed(2)}</b></div>
-            <div class="tip-hint">github.com/henriquereolonpain-sys/renda-desigualdade-rs</div>
-        </div>`;
+    let rows = `
+        <div class="tip-row"><span>População (2026)</span><b>${dado.populacao.toLocaleString('pt-BR')}</b></div>`;
+    if (dado.salario_sm) {
+        rows += `<div class="tip-row"><span>Salário médio</span><b>${dado.salario_sm.toFixed(1)} SM</b></div>`;
+    }
+    rows += `
+        <div class="tip-row"><span>PIB per capita</span><b>${formatBRL(dado.pib)}</b></div>
+        <div class="tip-row"><span>Renda média (2022)</span><b>${formatBRL(dado.renda_media)}</b></div>
+        <div class="tip-row"><span>Renda mediana (2022)</span><b>${formatBRL(dado.renda_mediana)}</b></div>
+        <div class="tip-row"><span>Razão média/mediana</span><b>${dado.razao.toFixed(2)}</b></div>`;
+    if (dado.gini) {
+        rows += `<div class="tip-row"><span>Gini (2010)</span><b>${dado.gini.toFixed(2)}</b></div>`;
+    }
+    return `<div class="tip-box"><div class="tip-title">${dado.nome}</div>${rows}<div class="tip-hint">github.com/henriquereolonpain-sys/renda-desigualdade-rs</div></div>`;
 }
 
 function onEachFeature(feature, layer) {
@@ -144,7 +213,7 @@ function onEachFeature(feature, layer) {
         opacity: 1,
     });
     layer.on('mouseover', () => layer.setStyle({ weight: 3, color: '#38bdf8' }));
-    layer.on('mouseout', () => layer.setStyle({ weight: 1.6, color: '#f8fafc' }));
+    layer.on('mouseout', () => layer.setStyle({ weight: 1.4, color: '#f8fafc' }));
 }
 
 fetch('data/rs_municipios.geojson')
@@ -163,14 +232,14 @@ legend.onAdd = function () {
     div.innerHTML = `
         <b>Razão renda média / mediana (2022)</b>
         <div class="legend-scale">
-            <span>1,31</span>
-            <span class="legend-swatch" style="background:${corPorRazao(1.31)}"></span>
-            <span class="legend-swatch" style="background:${corPorRazao(1.40)}"></span>
-            <span class="legend-swatch" style="background:${corPorRazao(1.48)}"></span>
-            <span class="legend-swatch" style="background:${corPorRazao(1.56)}"></span>
-            <span>1,56</span>
+            <span>1,25</span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.25)}"></span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.45)}"></span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.65)}"></span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.88)}"></span>
+            <span>1,88</span>
         </div>
-        <div style="margin-top:4px;opacity:.75">mais claro = renda mais distribuída</div>`;
+        <div style="margin-top:4px;opacity:.75">mais claro = renda mais distribuída · 29 cidades cobertas (25 maiores do RS + 4 do Planalto Médio)</div>`;
     return div;
 };
 legend.addTo(map);
