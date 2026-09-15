@@ -1,6 +1,6 @@
-codigo_ibge,municipio,populacao_2026,salario_medio_sm_2023,pib_per_capita_reais_2023,gini_2010,gini_2000
-4314100,Passo Fundo,214815,2.6,68227.53,0.52,0.58
-4304705,Carazinho,63671,2.5,60594.24,0.51,0.56
-4311809,Marau,46750,2.4,82844.93,0.44,0.49
-4320909,Tapejara,25257,2.2,76169.60,0.44,0.51
-4320404,Serafina Correa,17407,2.3,58281.73,0.36,0.47
+codigo_ibge,municipio,populacao_2026,salario_medio_sm_2023,pib_per_capita_reais_2023,renda_media_domiciliar_2022,renda_mediana_domiciliar_2022,razao_media_mediana_2022,gini_2010,gini_2000
+4314100,Passo Fundo,214815,2.6,68227.53,2343.36,1500.00,1.562,0.52,0.58
+4304705,Carazinho,63671,2.5,60594.24,2049.08,1423.00,1.440,0.51,0.56
+4311809,Marau,46750,2.4,82844.93,2256.96,1650.00,1.368,0.44,0.49
+4320909,Tapejara,25257,2.2,76169.60,1867.41,1425.00,1.310,0.44,0.51
+4320404,Serafina Correa,17407,2.3,58281.73,2126.45,1625.00,1.309,0.36,0.47
