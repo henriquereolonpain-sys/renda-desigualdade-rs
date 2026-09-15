@@ -2,6 +2,8 @@
 
 Salário médio, PIB per capita e concentração de renda em cinco cidades do Planalto Médio gaúcho, pra mostrar por que média sozinha não conta a história toda sobre riqueza de um município.
 
+🔗 [henriquepain.com.br/renda-desigualdade-rs](https://henriquepain.com.br/renda-desigualdade-rs/) — página do projeto e mapa interativo
+
 ## O achado
 
 O PIB per capita mais alto do grupo não é o de Passo Fundo, a cidade-polo da região. É o de **Marau** (R$ 82.844,93), puxado por indústria concentrada. Mas o salário médio mais alto e a renda mais concentrada são os de **Passo Fundo**: em 2022, a renda domiciliar per capita média de Passo Fundo (R$ 2.343) era **1,56 vezes** a mediana (R$ 1.500), a maior razão média/mediana do grupo. Já **Serafina Corrêa** e **Tapejara** têm a renda mais igualmente distribuída (razão de 1,31), mesmo com PIB per capita mais baixo.
