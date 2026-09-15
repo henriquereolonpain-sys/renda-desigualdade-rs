@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renda e Desigualdade no Planalto Médio (RS)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+    header {
+        padding: 1.25rem 1.5rem 0.75rem;
+        border-bottom: 1px solid #1e293b;
+    }
+    header h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+    header p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #94a3b8;
+        max-width: 720px;
+        line-height: 1.4;
+    }
+    #map {
+        height: calc(100vh - 92px);
+        width: 100%;
+        background: #0f172a;
+    }
+    .leaflet-tooltip.cidade-tooltip {
+        background: #111827;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        color: #f1f5f9;
+        padding: 0;
+        box-shadow: 0 8px 24px rgba(0,0,0,.45);
+        opacity: 0.98 !important;
+    }
+    .leaflet-tooltip.cidade-tooltip::before { display: none; }
+    .tip-box { padding: 0.7rem 0.85rem; min-width: 220px; }
+    .tip-title { font-weight: 700; font-size: 0.95rem; color: #f8fafc; margin-bottom: 0.4rem; }
+    .tip-row { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.78rem; padding: 0.12rem 0; color: #cbd5e1; }
+    .tip-row b { color: #f1f5f9; font-weight: 600; }
+    .tip-hint { font-size: 0.68rem; color: #64748b; margin-top: 0.35rem; }
+    .legend {
+        background: #111827;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.72rem;
+        color: #cbd5e1;
+        line-height: 1.5;
+    }
+    .legend b { display: block; color: #f1f5f9; margin-bottom: 0.3rem; font-size: 0.75rem; }
+    .legend-scale { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+    .legend-swatch { width: 16px; height: 12px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Renda e Desigualdade no Planalto Médio (RS)</h1>
+    <p>Passe o mouse sobre uma cidade colorida pra ver os indicadores. Cor = razão entre renda média e mediana per capita (2022): quanto mais escuro, mais concentrada a renda. Município cinza = sem dado neste projeto ainda.</p>
+</header>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const CIDADES = {
+    "4314100": { nome: "Passo Fundo",       populacao: 214815, salario_sm: 2.6, pib: 68227.53, renda_media: 2343.36, renda_mediana: 1500.00, razao: 1.56, gini: 0.52 },
+    "4304705": { nome: "Carazinho",         populacao: 63671,  salario_sm: 2.5, pib: 60594.24, renda_media: 2049.08, renda_mediana: 1423.00, razao: 1.44, gini: 0.51 },
+    "4311809": { nome: "Marau",             populacao: 46750,  salario_sm: 2.4, pib: 82844.93, renda_media: 2256.96, renda_mediana: 1650.00, razao: 1.37, gini: 0.44 },
+    "4320909": { nome: "Tapejara",          populacao: 25257,  salario_sm: 2.2, pib: 76169.60, renda_media: 1867.41, renda_mediana: 1425.00, razao: 1.31, gini: 0.44 },
+    "4320404": { nome: "Serafina Corrêa",   populacao: 17407,  salario_sm: 2.3, pib: 58281.73, renda_media: 2126.45, renda_mediana: 1625.00, razao: 1.31, gini: 0.36 },
+};
+
+const RAZAO_MIN = 1.31, RAZAO_MAX = 1.56;
+
+function corPorRazao(razao) {
+    const t = Math.max(0, Math.min(1, (razao - RAZAO_MIN) / (RAZAO_MAX - RAZAO_MIN)));
+    const escala = [
+        [254, 240, 138],
+        [251, 146, 60],
+        [220, 38, 38],
+        [127, 29, 29],
+    ];
+    const pos = t * (escala.length - 1);
+    const i = Math.min(Math.floor(pos), escala.length - 2);
+    const f = pos - i;
+    const c = escala[i].map((v, k) => Math.round(v + (escala[i + 1][k] - v) * f));
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+function formatBRL(v) {
+    return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
+}
+
+const map = L.map('map', { zoomControl: true, attributionControl: true }).setView([-28.6, -53.5], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 12,
+}).addTo(map);
+
+function style(feature) {
+    const dado = CIDADES[feature.properties.codarea];
+    if (dado) {
+        return { fillColor: corPorRazao(dado.razao), weight: 1.6, color: '#f8fafc', fillOpacity: 0.88 };
+    }
+    return { fillColor: '#1e293b', weight: 0.4, color: '#334155', fillOpacity: 0.45 };
+}
+
+function tooltipHtml(dado) {
+    return `
+        <div class="tip-box">
+            <div class="tip-title">${dado.nome}</div>
+            <div class="tip-row"><span>População (2026)</span><b>${dado.populacao.toLocaleString('pt-BR')}</b></div>
+            <div class="tip-row"><span>Salário médio</span><b>${dado.salario_sm.toFixed(1)} SM</b></div>
+            <div class="tip-row"><span>PIB per capita</span><b>${formatBRL(dado.pib)}</b></div>
+            <div class="tip-row"><span>Renda média (2022)</span><b>${formatBRL(dado.renda_media)}</b></div>
+            <div class="tip-row"><span>Renda mediana (2022)</span><b>${formatBRL(dado.renda_mediana)}</b></div>
+            <div class="tip-row"><span>Razão média/mediana</span><b>${dado.razao.toFixed(2)}</b></div>
+            <div class="tip-row"><span>Gini (2010)</span><b>${dado.gini.toFixed(2)}</b></div>
+            <div class="tip-hint">github.com/henriquereolonpain-sys/renda-desigualdade-rs</div>
+        </div>`;
+}
+
+function onEachFeature(feature, layer) {
+    const dado = CIDADES[feature.properties.codarea];
+    if (!dado) return;
+    layer.bindTooltip(tooltipHtml(dado), {
+        className: 'cidade-tooltip',
+        sticky: true,
+        direction: 'top',
+        opacity: 1,
+    });
+    layer.on('mouseover', () => layer.setStyle({ weight: 3, color: '#38bdf8' }));
+    layer.on('mouseout', () => layer.setStyle({ weight: 1.6, color: '#f8fafc' }));
+}
+
+fetch('data/rs_municipios.geojson')
+    .then(r => r.json())
+    .then(geo => {
+        L.geoJSON(geo, { style, onEachFeature }).addTo(map);
+    })
+    .catch(err => {
+        document.getElementById('map').innerHTML =
+            '<p style="color:#f87171;padding:2rem;">Não foi possível carregar rs_municipios.geojson. ' + err + '</p>';
+    });
+
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `
+        <b>Razão renda média / mediana (2022)</b>
+        <div class="legend-scale">
+            <span>1,31</span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.31)}"></span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.40)}"></span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.48)}"></span>
+            <span class="legend-swatch" style="background:${corPorRazao(1.56)}"></span>
+            <span>1,56</span>
+        </div>
+        <div style="margin-top:4px;opacity:.75">mais claro = renda mais distribuída</div>`;
+    return div;
+};
+legend.addTo(map);
+</script>
+
+</body>
+</html>

@@ -40,19 +40,27 @@ O Índice de Gini municipal só existe calculado até o **Censo 2010**. O Censo 
 
 A razão média/mediana é um proxy reconhecido, mas mais simples que o Gini: ele reage à cauda superior da distribuição (quem ganha muito), mas não descreve a forma inteira da curva de renda. Ainda assim, bateu na mesma direção do Gini de 2010 nas cinco cidades, o que é um bom sinal de que o padrão é real e não um artefato de um único indicador.
 
+## Mapa interativo
+
+`mapa.html` mostra as cinco cidades sobre o mapa do Rio Grande do Sul (contorno oficial de município via [API de malhas do IBGE](https://servicodados.ibge.gov.br/api/docs/malhas)), coloridas pela razão renda média/mediana. Passar o mouse sobre uma cidade abre um popup com todos os indicadores. Município sem dado no projeto aparece em cinza.
+
+Pra abrir localmente: como o navegador bloqueia `fetch` de arquivo local por CORS, sirva a pasta com qualquer servidor estático (ex.: `npx serve .` ou `python -m http.server`) e acesse `mapa.html`. Publicado via GitHub Pages, funciona direto.
+
 ## Estrutura
 
 ```
-data/cidades.csv    dataset consolidado, uma linha por município
+mapa.html                    mapa interativo (Leaflet)
+data/cidades.csv             dataset consolidado, uma linha por município
+data/rs_municipios.geojson   contorno dos municípios do RS (IBGE, malhas territoriais)
 ```
 
 ## Próximos passos
 
 - [x] ~~Aluguel/custo de imóvel por cidade via scraping~~: testado em OLX e VivaReal, sem inventário suficiente pra 3 das 5 cidades (Tapejara e Serafina Corrêa com 0 anúncios, Marau com 1). Mercado de aluguel em cidade pequena não é anunciado online nessa região, então essa via foi descartada.
+- [x] ~~Visualização interativa~~: mapa com hover em `mapa.html`
 - [ ] Indicadores de qualidade de vida que cobrem todo município (saneamento, mortalidade infantil, IDEB) como eixo complementar
 - [ ] Mais cidades do Planalto Médio
 - [ ] Atualizar quando o Gini do Censo 2022 for publicado por município
-- [ ] Visualização interativa (dashboard)
 
 ## Licença
 
