@@ -723,6 +723,13 @@ function onEachFeature(feature, layer) {
     });
     layer.on('mouseover', () => layer.setStyle({ weight: 3, color: '#38bdf8' }));
     layer.on('mouseout', () => layer.setStyle({ weight: 1.4, color: '#f8fafc' }));
+    // Em municípios pequenos o balão cobre os vizinhos; se o mouse sair do próprio
+    // balão (em vez de só sair do polígono) a gente força o fechamento pra liberar
+    // o clique em quem estava embaixo.
+    layer.on('tooltipopen', (e) => {
+        const el = e.tooltip.getElement();
+        if (el) el.addEventListener('mouseleave', () => layer.closeTooltip());
+    });
 }
 
 let municipiosLayer = null;
