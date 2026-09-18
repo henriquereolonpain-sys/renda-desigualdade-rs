@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análises: renda e desigualdade no RS</title>
+<meta name="description" content="Quatro análises sobre renda nos 497 municípios do Rio Grande do Sul: PIB vs. renda, Metade Sul, ruído em cidades pequenas e composição setorial.">
+<style>
+    * { box-sizing: border-box; }
+    :root {
+        color-scheme: light;
+        --page: #f8fafc;
+        --surface: #fcfcfb;
+        --text: #1e293b;
+        --text2: #475569;
+        --ink: #0b0b0b;
+        --ink2: #52514e;
+        --muted: #767469;
+        --grid: #e1e0d9;
+        --axis: #c3c2b7;
+        --border: rgba(11,11,11,.10);
+        --s1: #2a78d6;
+        --s2: #eb6834;
+        --ctx: #8f8d85;
+        --link: #0369a1;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            color-scheme: dark;
+            --page: #0d0d0d;
+            --surface: #1a1a19;
+            --text: #e7e6e0;
+            --text2: #c3c2b7;
+            --ink: #ffffff;
+            --ink2: #c3c2b7;
+            --muted: #a3a198;
+            --grid: #2c2c2a;
+            --axis: #383835;
+            --border: rgba(255,255,255,.10);
+            --s1: #3987e5;
+            --s2: #d95926;
+            --ctx: #6f6d66;
+            --link: #38bdf8;
+        }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--page);
+        color: var(--text);
+        line-height: 1.55;
+    }
+    a { color: var(--link); }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+    .top { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: .85rem; margin-bottom: 1.75rem; }
+    .top a { text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+    .eyebrow {
+        display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+        color: var(--link); border: 1px solid var(--border); border-radius: 999px; padding: .28rem .7rem; margin-bottom: 1rem;
+    }
+    h1 { font-size: clamp(1.5rem, 3.6vw, 2.05rem); margin: 0 0 .75rem; line-height: 1.2; color: var(--ink); }
+    .lead { max-width: 700px; color: var(--text2); font-size: 1.02rem; margin: 0; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; margin: 1.75rem 0 2.75rem; }
+    .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+    .tile .v { font-size: 1.9rem; font-weight: 700; color: var(--ink); line-height: 1.1; }
+    .tile .l { font-size: .84rem; color: var(--ink2); margin-top: .4rem; }
+    .tile .s { font-size: .76rem; color: var(--muted); margin-top: .25rem; }
+    section { margin: 0 0 3.25rem; }
+    h2 { font-size: 1.3rem; margin: 0 0 .6rem; color: var(--ink); line-height: 1.25; }
+    .prose { max-width: 720px; color: var(--text2); font-size: .97rem; margin: 0 0 .75rem; }
+    .prose b { color: var(--ink); }
+    .note { max-width: 720px; color: var(--text2); font-size: .9rem; margin: .75rem 0; }
+    .note b { color: var(--ink); }
+    .fig { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1rem .6rem; margin: 1.1rem 0; }
+    .fig-h { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .4rem 1.25rem; margin-bottom: .6rem; }
+    .fig-t { font-weight: 650; font-size: .92rem; color: var(--ink); margin: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .78rem; color: var(--ink2); }
+    .legend span { white-space: nowrap; }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: .38rem; }
+    .legend i.line { width: 16px; height: 2px; border-radius: 0; vertical-align: middle; }
+    .chart { width: 100%; }
+    .chart svg { display: block; max-width: 100%; }
+    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    .panel-t { font-size: .8rem; color: var(--ink2); margin: .2rem 0 0; font-weight: 600; }
+    .filters { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; font-size: .85rem; color: var(--ink2); margin: 0 0 .5rem; }
+    select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: .3rem .5rem; }
+    .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: .5rem 0 .75rem; }
+    .lists h3 { font-size: .8rem; margin: 0 0 .3rem; color: var(--ink2); font-weight: 600; }
+    .lists h3 i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: .38rem; }
+    details.twin { margin: .25rem 0 .5rem; font-size: .85rem; }
+    details.twin summary { cursor: pointer; color: var(--link); padding: .35rem 0; }
+    .tbl-wrap { overflow: auto; max-height: 420px; border: 1px solid var(--border); border-radius: 8px; margin-top: .4rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    th, td { padding: .4rem .65rem; text-align: left; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+    th { position: sticky; top: 0; background: var(--surface); color: var(--ink2); font-weight: 600; }
+    td { color: var(--text); }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .method { max-width: 720px; font-size: .88rem; color: var(--text2); }
+    .method h3 { font-size: .95rem; color: var(--ink); margin: 1.1rem 0 .3rem; }
+    .method ul { padding-left: 1.2rem; margin: .3rem 0; }
+    .method li { margin: .25rem 0; }
+    footer { margin-top: 3rem; font-size: .75rem; color: var(--muted); }
+
+    /* marcas dos gráficos */
+    svg text { font-family: inherit; }
+    .gridline { stroke: var(--grid); stroke-width: 1; }
+    .axisline { stroke: var(--axis); stroke-width: 1; }
+    .tick { fill: var(--muted); font-size: 11px; }
+    .axis-title { fill: var(--ink2); font-size: 12px; }
+    .rowlab { fill: var(--ink2); font-size: 12px; }
+    .dot-ctx { fill: var(--ctx); fill-opacity: .6; }
+    .dot-dim { fill: var(--ctx); fill-opacity: .16; }
+    .dot-hi { fill: var(--s2); stroke: var(--surface); stroke-width: 2; }
+    .dot-lo { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+    .dot-a { fill: var(--s2); fill-opacity: .8; }
+    .dot-b { fill: var(--s1); fill-opacity: .8; }
+    .wash-hi { fill: var(--s2); fill-opacity: .09; }
+    .wash-lo { fill: var(--s1); fill-opacity: .09; }
+    .band { fill: var(--s1); fill-opacity: .10; }
+    .trend { stroke: var(--ink2); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .refline { stroke: var(--axis); stroke-width: 1; }
+    .medtick { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+    .lbl { fill: var(--ink); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+    .cap { fill: var(--ink2); font-size: 11.5px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+    .bar-a { fill: var(--s2); }
+    .bar-b { fill: var(--s1); }
+    .barval { fill: var(--ink2); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+    .ring { fill: none; stroke: var(--ink); stroke-width: 2; pointer-events: none; }
+
+    .tip {
+        position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; max-width: 260px;
+        background: var(--surface); color: var(--ink); border: 1px solid var(--axis); border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: .5rem .7rem; font-size: .78rem;
+    }
+    .tip[hidden] { display: none; }
+    .tip-title { font-weight: 700; font-size: .84rem; margin-bottom: .2rem; }
+    .tip-row strong { font-weight: 700; margin-right: .4rem; font-variant-numeric: tabular-nums; }
+    .tip-row span { color: var(--ink2); }
+
+    @media (max-width: 720px) {
+        .panels, .lists { grid-template-columns: 1fr; }
+        .fig { padding: .8rem .6rem .4rem; }
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <nav class="top">
+        <a href="index.html">← Sobre o projeto</a>
+        <a href="mapa.html">Mapa interativo</a>
+        <a href="https://github.com/henriquereolonpain-sys/renda-desigualdade-rs">GitHub</a>
+    </nav>
+
+    <span class="eyebrow">Análises · Dados públicos IBGE</span>
+    <h1>O que os dados dizem sobre renda no Rio Grande do Sul</h1>
+    <p class="lead">Quatro perguntas sobre os 497 municípios, respondidas com os mesmos dados do mapa. Todos os números abaixo são calculados na hora a partir dos CSVs do repositório. Onde algo é hipótese e não resultado, está escrito.</p>
+
+    <div class="tiles" id="tiles"></div>
+    <noscript><p class="prose">Esta página precisa de JavaScript para calcular os números e desenhar os gráficos.</p></noscript>
+
+    <section id="a1">
+        <h2>1. PIB alto não garante renda alta</h2>
+        <p class="prose">PIB per capita e renda mediana andam pouco juntos: a correlação (Spearman) é de <b data-k="a1rho"></b>, numa escala em que 1 seria "sempre juntos" e 0 "sem relação". O PIB mede o que é produzido dentro do município; a renda mediana mede o que o morador típico recebe.</p>
+        <figure class="fig" style="margin-inline:0">
+            <div class="fig-h">
+                <h3 class="fig-t">PIB per capita × renda mediana, 497 municípios</h3>
+                <div class="legend" id="l1"></div>
+            </div>
+            <div class="chart" id="c1"></div>
+        </figure>
+        <p class="note" id="a1note"></p>
+        <details class="twin"><summary>Ver como tabela</summary><div id="t1"></div></details>
+    </section>
+
+    <section id="a2">
+        <h2>2. A Metade Sul é mais pobre, mas não mais desigual</h2>
+        <p class="prose" id="a2lead"></p>
+        <figure class="fig" style="margin-inline:0">
+            <div class="fig-h">
+                <h3 class="fig-t">Cada ponto é um município, agrupado por mesorregião do IBGE</h3>
+                <div class="legend" id="l2"></div>
+            </div>
+            <div class="panels">
+                <div><p class="panel-t">Renda mediana (R$/mês, 2022)</p><div class="chart" id="c2a"></div></div>
+                <div><p class="panel-t">Razão renda média/mediana (2022)</p><div class="chart" id="c2b"></div></div>
+            </div>
+        </figure>
+        <p class="note" id="a2note"></p>
+        <details class="twin"><summary>Ver como tabela</summary><div id="t2"></div></details>
+    </section>
+
+    <section id="a3">
+        <h2>3. Cidade pequena oscila mais</h2>
+        <p class="prose" id="a3lead"></p>
+        <figure class="fig" style="margin-inline:0">
+            <div class="fig-h">
+                <h3 class="fig-t">Razão média/mediana × população</h3>
+                <div class="legend" id="l3"></div>
+            </div>
+            <div class="filters">
+                <label for="minpop">População mínima</label>
+                <select id="minpop">
+                    <option value="0">Todas as cidades</option>
+                    <option value="5000">5 mil ou mais</option>
+                    <option value="10000">10 mil ou mais</option>
+                    <option value="20000">20 mil ou mais</option>
+                    <option value="50000">50 mil ou mais</option>
+                </select>
+                <span id="minpopn"></span>
+            </div>
+            <div class="chart" id="c3"></div>
+            <div class="lists">
+                <div><h3><i style="background:var(--s2)"></i>Mais concentrados</h3><div id="top5"></div></div>
+                <div><h3><i style="background:var(--s1)"></i>Menos concentrados</h3><div id="bot5"></div></div>
+            </div>
+        </figure>
+        <p class="note" id="a3note"></p>
+        <details class="twin"><summary>Ver como tabela</summary><div id="t3"></div></details>
+    </section>
+
+    <section id="a4">
+        <h2>4. A composição da economia explica parte da concentração</h2>
+        <p class="prose" id="a4lead"></p>
+        <figure class="fig" style="margin-inline:0">
+            <div class="fig-h">
+                <h3 class="fig-t">Correlação (Spearman) entre a fatia de cada setor e cada indicador</h3>
+                <div class="legend" id="l4"></div>
+            </div>
+            <div class="chart" id="c4"></div>
+        </figure>
+        <p class="note" id="a4note"></p>
+        <details class="twin"><summary>Ver como tabela (correlações e modelo)</summary><div id="t4"></div></details>
+    </section>
+
+    <section id="metodo" class="method">
+        <h2>Método e limites</h2>
+        <h3>Dados</h3>
+        <ul>
+            <li><a href="data/cidades.csv">cidades.csv</a>: população, PIB per capita (2023) e renda domiciliar per capita (Censo 2022), como no mapa.</li>
+            <li><a href="data/regioes.csv">regioes.csv</a>: mesorregião e microrregião de cada município (API de localidades do IBGE).</li>
+            <li><a href="data/vab_setores.csv">vab_setores.csv</a>: valor adicionado bruto por setor, soma de 2019 a 2021 (tabela 5938 do SIDRA, via API de agregados). É o último ano com essa abertura na tabela; 2022 e 2023 só trazem o total.</li>
+        </ul>
+        <h3>Estatística</h3>
+        <ul>
+            <li><b>Correlação de Spearman</b>: correlação entre posições (rankings), menos sensível a valores extremos. Vai de −1 a +1; perto de 0 significa pouca relação.</li>
+            <li><b>Metade Sul vs. resto</b>: teste de Mann-Whitney (compara as distribuições sem supor formato). A "chance" citada é a probabilidade de um município sorteado de um grupo superar um sorteado do outro (empates contam meio).</li>
+            <li><b>Cidade pequena</b>: a razão entre desvios-padrão é testada por permutação (embaralhar os grupos 4.000 vezes). A comparação de extremos usa a distribuição hipergeométrica.</li>
+            <li><b>Composição setorial</b>: regressão linear com erros-padrão robustos (HC3), pois a variância muda com o tamanho da cidade. Como as quatro fatias somam 100%, serviços é a categoria de referência.</li>
+        </ul>
+        <h3>Limites</h3>
+        <ul>
+            <li>Tudo aqui é associação entre municípios, não causa. Nenhum teste foi ajustado para múltiplas comparações.</li>
+            <li>PIB per capita (2023) e renda do Censo (2022) medem coisas e anos diferentes. O valor adicionado é registrado onde a produção acontece, não onde os trabalhadores moram.</li>
+            <li>A razão média/mediana vem de amostra do Censo e não é o índice de Gini (que exige a distribuição completa). É um indicador de concentração, não uma medida de desigualdade completa.</li>
+            <li>"Metade Sul" é um recorte operacional (Sudoeste e Sudeste Rio-grandense). Estudos regionais usam definições um pouco diferentes, e 44 municípios é um grupo pequeno.</li>
+            <li>A comparação por tamanho não separa ruído de amostra de diferenças reais entre economias pequenas.</li>
+        </ul>
+    </section>
+
+    <footer>Henrique Pain · Projeto de portfólio / uso educacional · <a href="https://github.com/henriquereolonpain-sys/renda-desigualdade-rs">código e dados</a></footer>
+</div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script>
+(async function () {
+'use strict';
+
+/* ---------- utilidades ---------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const fmt = (v, d = 0) => v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const brl = v => 'R$ ' + fmt(v, 0);
+const sgn = (v, d = 2) => (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), d);
+const pct = (v, d = 0) => fmt(v * 100, d) + '%';
+const pfmt = p => p < 0.001 ? 'p < 0,001' : 'p = ' + fmt(p, p < 0.01 ? 3 : 2);
+const set = (k, text) => document.querySelectorAll('[data-k="' + k + '"]').forEach(e => { e.textContent = text; });
+
+async function loadCsv(url) {
+    const txt = await (await fetch(url)).text();
+    const lines = txt.trim().split(/\r?\n/);
+    const head = lines[0].split(',');
+    return lines.slice(1).map(l => { const c = l.split(','); const o = {}; head.forEach((h, i) => { o[h] = c[i]; }); return o; });
+}
+
+/* ---------- estatística ---------- */
+const sum = a => a.reduce((s, x) => s + x, 0);
+const mean = a => sum(a) / a.length;
+const sdev = a => { const m = mean(a); return Math.sqrt(sum(a.map(x => (x - m) ** 2)) / (a.length - 1)); };
+const quant = (a, p) => { const s = [...a].sort((x, y) => x - y); const i = (s.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo); };
+const median = a => quant(a, 0.5);
+const erf = x => { const sg = Math.sign(x); x = Math.abs(x); const t = 1 / (1 + 0.3275911 * x); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return sg * y; };
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+function ranks(a) {
+    const idx = a.map((v, i) => [v, i]).sort((p, q) => p[0] - q[0]); const r = new Array(a.length); let i = 0;
+    while (i < idx.length) { let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++; const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) r[idx[k][1]] = avg; i = j + 1; }
+    return r;
+}
+function pearson(x, y) { const mx = mean(x), my = mean(y); let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < x.length; i++) { sxy += (x[i] - mx) * (y[i] - my); sxx += (x[i] - mx) ** 2; syy += (y[i] - my) ** 2; } return sxy / Math.sqrt(sxx * syy); }
+function spearman(x, y) { const r = pearson(ranks(x), ranks(y)); const n = x.length; const t = r * Math.sqrt((n - 2) / (1 - r * r)); return { rho: r, p: 2 * (1 - Phi(Math.abs(t))) }; }
+function mannWhitney(x, y) {
+    const n1 = x.length, n2 = y.length, all = [...x, ...y], r = ranks(all);
+    const U1 = sum(r.slice(0, n1)) - n1 * (n1 + 1) / 2, mu = n1 * n2 / 2, N = n1 + n2;
+    const cnt = {}; all.forEach(v => { cnt[v] = (cnt[v] || 0) + 1; });
+    const tie = sum(Object.values(cnt).map(t => t ** 3 - t));
+    const sd = Math.sqrt(n1 * n2 / 12 * ((N + 1) - tie / (N * (N - 1))));
+    const z = (U1 - mu) / sd; return { auc: U1 / (n1 * n2), z, p: 2 * (1 - Phi(Math.abs(z))) };
+}
+function invMatrix(A) {
+    const n = A.length; const B = A.map((r, i) => [...r, ...Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))]);
+    for (let i = 0; i < n; i++) {
+        let p = i; for (let r = i + 1; r < n; r++) if (Math.abs(B[r][i]) > Math.abs(B[p][i])) p = r;
+        [B[i], B[p]] = [B[p], B[i]]; const d = B[i][i]; for (let j = 0; j < 2 * n; j++) B[i][j] /= d;
+        for (let r = 0; r < n; r++) if (r !== i) { const f = B[r][i]; for (let j = 0; j < 2 * n; j++) B[r][j] -= f * B[i][j]; }
+    }
+    return B.map(r => r.slice(n));
+}
+function ols(X, y, names) { // erros-padrão robustos HC3
+    const n = X.length, k = X[0].length; const XtX = Array.from({ length: k }, () => Array(k).fill(0)); const Xty = Array(k).fill(0);
+    for (let i = 0; i < n; i++) for (let a = 0; a < k; a++) { Xty[a] += X[i][a] * y[i]; for (let b = 0; b < k; b++) XtX[a][b] += X[i][a] * X[i][b]; }
+    const Inv = invMatrix(XtX); const beta = Inv.map(r => sum(r.map((v, j) => v * Xty[j])));
+    const e = y.map((v, i) => v - sum(X[i].map((x, j) => x * beta[j])));
+    const h = X.map(r => { let s = 0; for (let a = 0; a < k; a++) for (let b = 0; b < k; b++) s += r[a] * Inv[a][b] * r[b]; return s; });
+    const meat = Array.from({ length: k }, () => Array(k).fill(0));
+    for (let i = 0; i < n; i++) { const w = (e[i] / (1 - h[i])) ** 2; for (let a = 0; a < k; a++) for (let b = 0; b < k; b++) meat[a][b] += w * X[i][a] * X[i][b]; }
+    const tmp = Inv.map(r => Array.from({ length: k }, (_, c) => sum(r.map((v, j) => v * meat[j][c]))));
+    const V = tmp.map(r => Array.from({ length: k }, (_, c) => sum(r.map((v, j) => v * Inv[j][c]))));
+    const ym = mean(y); const sst = sum(y.map(v => (v - ym) ** 2)), sse = sum(e.map(v => v * v));
+    return { r2: 1 - sse / sst, coef: names.map((nm, i) => { const se = Math.sqrt(V[i][i]); const t = beta[i] / se; return { nm, b: beta[i], se, p: 2 * (1 - Phi(Math.abs(t))) }; }) };
+}
+function permSdRatio(A, B, R) {
+    const obs = sdev(A) / sdev(B); let seed = 12345; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const all = [...A, ...B]; let ge = 0;
+    for (let r = 0; r < R; r++) {
+        for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+        if (sdev(all.slice(0, A.length)) / sdev(all.slice(A.length)) >= obs) ge++;
+    }
+    return { ratio: obs, p: (ge + 1) / (R + 1) };
+}
+function hyperTail(x, n, K, N) { // P(X >= x) sorteando n de N com K "sucessos"
+    const lch = (a, b) => { let s = 0; for (let i = 1; i <= b; i++) s += Math.log((a - b + i) / i); return s; };
+    let p = 0; for (let k = x; k <= Math.min(n, K); k++) p += Math.exp(lch(K, k) + lch(N - K, n - k) - lch(N, n)); return p;
+}
+
+/* ---------- dados ---------- */
+const [ci, re, vb] = await Promise.all([loadCsv('data/cidades.csv'), loadCsv('data/regioes.csv'), loadCsv('data/vab_setores.csv')]);
+const reMap = Object.fromEntries(re.map(r => [r.codigo_ibge, r]));
+const vbMap = Object.fromEntries(vb.map(r => [r.codigo_ibge, r]));
+const M = ci.map(r => ({
+    cod: +r.codigo_ibge, nome: r.municipio, pop: +r.populacao_2026, pib: +r.pib_per_capita_reais_2023,
+    media: +r.renda_media_domiciliar_2022, mediana: +r.renda_mediana_domiciliar_2022, razao: +r.razao_media_mediana_2022,
+    meso: reMap[r.codigo_ibge].mesorregiao, agro: +vbMap[r.codigo_ibge].pct_agro, ind: +vbMap[r.codigo_ibge].pct_industria,
+    serv: +vbMap[r.codigo_ibge].pct_servicos, adm: +vbMap[r.codigo_ibge].pct_adm_publica
+}));
+const shortMeso = n => n.replace(' Rio-grandense', '').replace(' de Porto Alegre', '');
+const byName = (a, b) => a.nome.localeCompare(b.nome, 'pt-BR');
+
+/* ---------- tooltip e gráficos (SVG) ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+const S = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const T = (text, attrs, parent) => { const e = S('text', attrs, parent); e.textContent = text; return e; };
+const linScale = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+const logScale = (d0, d1, r0, r1) => v => r0 + (Math.log(v) - Math.log(d0)) / (Math.log(d1) - Math.log(d0)) * (r1 - r0);
+const narrow = () => window.innerWidth < 640;
+
+const tipEl = $('#tip');
+function showTip(e, tip) {
+    tipEl.replaceChildren();
+    const h = document.createElement('div'); h.className = 'tip-title'; h.textContent = tip.title; tipEl.appendChild(h);
+    for (const [k, v] of tip.rows) {
+        const r = document.createElement('div'); r.className = 'tip-row';
+        const b = document.createElement('strong'); b.textContent = v; const sp = document.createElement('span'); sp.textContent = k;
+        r.append(b, sp); tipEl.appendChild(r);
+    }
+    tipEl.hidden = false;
+    const pad = 14; let x = e.clientX + pad, y = e.clientY + pad; const w = tipEl.offsetWidth, hh = tipEl.offsetHeight;
+    if (x + w > innerWidth - 8) x = e.clientX - w - pad; if (y + hh > innerHeight - 8) y = e.clientY - hh - pad;
+    tipEl.style.transform = 'translate(' + Math.max(8, x) + 'px,' + Math.max(8, y) + 'px)';
+}
+const hideTip = () => { tipEl.hidden = true; };
+
+function makeChart(host, heightFn, draw, label) {
+    const svg = S('svg', { role: 'img', 'aria-label': label });
+    host.appendChild(svg);
+    const chart = { svg, pts: [], tipFn: null, ring: null };
+    svg.addEventListener('pointermove', e => {
+        if (!chart.pts.length || !chart.ring) return;
+        const rc = svg.getBoundingClientRect(); const x = e.clientX - rc.left, y = e.clientY - rc.top;
+        let best = null, bd = Infinity;
+        for (const p of chart.pts) { const d = (p.px - x) ** 2 + (p.py - y) ** 2; if (d < bd) { bd = d; best = p; } }
+        if (best && bd <= 24 * 24) { chart.ring.setAttribute('cx', best.px); chart.ring.setAttribute('cy', best.py); chart.ring.setAttribute('visibility', 'visible'); showTip(e, chart.tipFn(best.data)); }
+        else { chart.ring.setAttribute('visibility', 'hidden'); hideTip(); }
+    });
+    svg.addEventListener('pointerleave', () => { if (chart.ring) chart.ring.setAttribute('visibility', 'hidden'); hideTip(); });
+    let lastW = 0;
+    chart.render = () => {
+        const W = Math.max(260, Math.floor(host.clientWidth)); const H = heightFn(W);
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W); svg.setAttribute('height', H);
+        svg.replaceChildren(); chart.pts = []; chart.tipFn = null;
+        draw(chart, svg, W, H);
+        chart.ring = S('circle', { class: 'ring', r: 7, visibility: 'hidden' }, svg);
+    };
+    new ResizeObserver(() => { const w = Math.floor(host.clientWidth); if (w !== lastW) { lastW = w; chart.render(); } }).observe(host);
+    chart.render();
+    return chart;
+}
+
+function drawAxes(svg, o) {
+    const { m, pw, ph, sx, sy, xt, yt, xf, yf, xTitle, yTitle, W, H } = o;
+    yt.forEach(v => { const y = sy(v); S('line', { class: 'gridline', x1: m.l, x2: m.l + pw, y1: y, y2: y }, svg); T(yf(v), { class: 'tick', x: m.l - 8, y: y + 4, 'text-anchor': 'end' }, svg); });
+    S('line', { class: 'axisline', x1: m.l, x2: m.l + pw, y1: m.t + ph, y2: m.t + ph }, svg);
+    xt.forEach(v => { const x = sx(v); S('line', { class: 'axisline', x1: x, x2: x, y1: m.t + ph, y2: m.t + ph + 4 }, svg); T(xf(v), { class: 'tick', x, y: m.t + ph + 18, 'text-anchor': 'middle' }, svg); });
+    if (xTitle) T(xTitle, { class: 'axis-title', x: m.l + pw / 2, y: H - 6, 'text-anchor': 'middle' }, svg);
+    if (yTitle) T(yTitle, { class: 'axis-title', transform: 'translate(13,' + (m.t + ph / 2) + ') rotate(-90)', 'text-anchor': 'middle' }, svg);
+}
+
+// posiciona rótulos sem sobrepor uns aos outros nem aos pontos destacados
+function placeLabels(items, avoid, bounds, fixed = []) {
+    const cands = [{ dx: 9, dy: 4, a: 'start' }, { dx: -9, dy: 4, a: 'end' }, { dx: 0, dy: -11, a: 'middle' }, { dx: 0, dy: 20, a: 'middle' }, { dx: 9, dy: -9, a: 'start' }, { dx: -9, dy: -9, a: 'end' }, { dx: 9, dy: 17, a: 'start' }, { dx: -9, dy: 17, a: 'end' }];
+    const placed = [...fixed], out = [];
+    for (const it of items) {
+        const w = it.text.length * 6.9 + 4, h = 15; let done = false;
+        for (const c of cands) {
+            const x = it.x + c.dx, y = it.y + c.dy;
+            const x0 = c.a === 'start' ? x : c.a === 'end' ? x - w : x - w / 2, x1 = x0 + w, y0 = y - 11, y1 = y0 + h;
+            if (x0 < bounds.x0 || x1 > bounds.x1 || y0 < bounds.y0 || y1 > bounds.y1) continue;
+            if (placed.some(b => x0 < b.x1 && x1 > b.x0 && y0 < b.y1 && y1 > b.y0)) continue;
+            if (avoid.some(p => p.x > x0 - 4 && p.x < x1 + 4 && p.y > y0 - 4 && p.y < y1 + 4 && !(p.x === it.x && p.y === it.y))) continue;
+            placed.push({ x0, x1, y0, y1 }); out.push({ x, y, a: c.a, text: it.text }); done = true; break;
+        }
+        if (!done) continue;
+    }
+    return out;
+}
+
+function tableTwin(host, cols, rows) {
+    const wrap = document.createElement('div'); wrap.className = 'tbl-wrap';
+    const tb = document.createElement('table'); const thead = document.createElement('thead'); const trh = document.createElement('tr');
+    cols.forEach(c => { const th = document.createElement('th'); th.textContent = c.h; if (c.n) th.className = 'n'; trh.appendChild(th); });
+    thead.appendChild(trh); tb.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    rows.forEach(r => { const tr = document.createElement('tr'); cols.forEach(c => { const td = document.createElement('td'); td.textContent = c.f(r); if (c.n) td.className = 'n'; tr.appendChild(td); }); tbody.appendChild(tr); });
+    tb.appendChild(tbody); wrap.appendChild(tb); host.replaceChildren(wrap);
+}
+const legendItem = (kind, text) => {
+    const sp = document.createElement('span'); const i = document.createElement('i');
+    if (kind === 'line') { i.className = 'line'; i.style.background = 'var(--ink2)'; }
+    else if (kind === 'band') { i.style.background = 'var(--s1)'; i.style.opacity = '.3'; i.style.borderRadius = '2px'; i.style.width = '16px'; }
+    else i.style.background = kind;
+    sp.append(i, document.createTextNode(text)); return sp;
+};
+const fillLegend = (id, items) => { const host = $(id); host.replaceChildren(...items.map(([k, t]) => legendItem(k, t))); };
+const cityTip = (m, extra) => ({ title: m.nome, rows: [[shortMeso(m.meso), ''], ...extra] });
+
+/* =========================================================
+   1. PIB per capita x renda mediana
+   ========================================================= */
+const pibs = M.map(m => m.pib), meds = M.map(m => m.mediana);
+const sp1 = spearman(pibs, meds);
+const lx = M.map(m => Math.log(m.pib)), ly = M.map(m => Math.log(m.mediana));
+const mlx = mean(lx), mly = mean(ly); let sxy = 0, sxx = 0, syy = 0;
+for (let i = 0; i < lx.length; i++) { sxy += (lx[i] - mlx) * (ly[i] - mly); sxx += (lx[i] - mlx) ** 2; syy += (ly[i] - mly) ** 2; }
+const slope = sxy / sxx, icpt = mly - slope * mlx, r2log = (sxy * sxy) / (sxx * syy);
+const pibQ1 = quant(pibs, 0.25), pibQ3 = quant(pibs, 0.75), medQ1 = quant(meds, 0.25), medQ3 = quant(meds, 0.75);
+const hi1 = M.filter(m => m.pib >= pibQ3 && m.mediana <= medQ1).sort((a, b) => b.pib - a.pib);
+const lo1 = M.filter(m => m.pib <= pibQ1 && m.mediana >= medQ3).sort((a, b) => b.mediana - a.mediana);
+const cls1 = new Map(); hi1.forEach(m => cls1.set(m.cod, 'hi')); lo1.forEach(m => cls1.set(m.cod, 'lo'));
+
+set('a1rho', fmt(sp1.rho, 2));
+{
+    const names = hi1.slice(0, 3).map(m => m.nome);
+    const small = lo1.every(m => m.pop < 6000);
+    $('#a1note').innerHTML = '';
+    const p = $('#a1note');
+    const add = (t, bold) => { const n = bold ? document.createElement('b') : document.createTextNode(t); if (bold) n.textContent = t; p.appendChild(n); };
+    add(String(hi1.length), true); add(' municípios estão no quarto mais alto de PIB per capita e no quarto mais baixo de renda mediana, liderados por ' + names.slice(0, -1).join(', ') + ' e ' + names.slice(-1) + '. Triunfo (polo petroquímico) e Candiota (mineração e usinas de carvão) são exemplos conhecidos; não verifiquei a causa nos demais. No sentido oposto, PIB baixo e renda alta, são só ');
+    add(String(lo1.length), true); add(small ? ', todos com menos de 6 mil habitantes. ' : '. ');
+    add('Em escala log-log, o PIB per capita explica apenas '); add(pct(r2log), true); add(' da variação da renda mediana: +10% de PIB per capita se associa a cerca de ' + sgn((1.1 ** slope - 1) * 100, 1) + '% de renda mediana.');
+}
+fillLegend('#l1', [['var(--ctx)', 'Demais (' + (M.length - hi1.length - lo1.length) + ')'], ['var(--s2)', 'PIB alto, renda baixa (' + hi1.length + ')'], ['var(--s1)', 'PIB baixo, renda alta (' + lo1.length + ')'], ['line', 'Tendência']]);
+
+makeChart($('#c1'), W => (W < 560 ? 340 : 430), (chart, svg, W, H) => {
+    const m = { l: 58, r: 28, t: 10, b: 46 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const xd = [15000, 400000], yd = [500, 2500];
+    const sx = logScale(xd[0], xd[1], m.l, m.l + pw), sy = linScale(yd[0], yd[1], m.t + ph, m.t);
+    S('rect', { class: 'wash-hi', x: sx(pibQ3), y: sy(medQ1), width: sx(xd[1]) - sx(pibQ3), height: sy(yd[0]) - sy(medQ1) }, svg);
+    S('rect', { class: 'wash-lo', x: sx(xd[0]), y: sy(yd[1]), width: sx(pibQ1) - sx(xd[0]), height: sy(medQ3) - sy(yd[1]) }, svg);
+    drawAxes(svg, { m, pw, ph, sx, sy, W, H, xt: [20000, 50000, 100000, 200000, 400000], yt: [500, 1000, 1500, 2000, 2500], xf: v => fmt(v / 1000) + ' mil', yf: v => fmt(v), xTitle: 'PIB per capita, 2023 (R$, escala logarítmica)', yTitle: 'Renda mediana domiciliar per capita (R$/mês, 2022)' });
+    const order = [...M].sort((a, b) => (cls1.has(a.cod) ? 1 : 0) - (cls1.has(b.cod) ? 1 : 0));
+    order.forEach(mu => { const c = cls1.get(mu.cod); const px = sx(mu.pib), py = sy(mu.mediana); S('circle', { class: c ? 'dot-' + c : 'dot-ctx', cx: px, cy: py, r: c ? 5 : 3.6 }, svg); chart.pts.push({ px, py, data: mu }); });
+    const pts = []; const xa = Math.log(Math.min(...pibs)), xb = Math.log(Math.max(...pibs));
+    for (let i = 0; i <= 60; i++) { const lxv = xa + (xb - xa) * i / 60; pts.push(sx(Math.exp(lxv)).toFixed(1) + ',' + sy(Math.exp(icpt + slope * lxv)).toFixed(1)); }
+    S('polyline', { class: 'trend', points: pts.join(' ') }, svg);
+    const lab = [...hi1.slice(0, 3), ...lo1.slice(0, 1)].map(mu => ({ x: sx(mu.pib), y: sy(mu.mediana), text: mu.nome }));
+    const avoid = [...hi1, ...lo1].map(mu => ({ x: sx(mu.pib), y: sy(mu.mediana) }));
+    const capHi = 'PIB alto, renda baixa', capLo = 'PIB baixo, renda alta';
+    const fixed = [{ x0: m.l + 6, x1: m.l + 6 + capLo.length * 6.3 + 6, y0: m.t + 2, y1: m.t + 22 }, { x0: m.l + pw - 6 - capHi.length * 6.3 - 6, x1: m.l + pw, y0: m.t + ph - 22, y1: m.t + ph - 2 }];
+    placeLabels(lab, avoid, { x0: m.l + 2, x1: m.l + pw, y0: m.t, y1: m.t + ph }, fixed).forEach(l => T(l.text, { class: 'lbl', x: l.x, y: l.y, 'text-anchor': l.a }, svg));
+    T(capHi, { class: 'cap', x: m.l + pw - 6, y: m.t + ph - 8, 'text-anchor': 'end' }, svg);
+    T(capLo, { class: 'cap', x: m.l + 6, y: m.t + 16 }, svg);
+    chart.tipFn = mu => cityTip(mu, [['PIB per capita', brl(mu.pib)], ['renda mediana', brl(mu.mediana)], ['população', fmt(mu.pop)]]);
+}, 'Dispersão do PIB per capita contra a renda mediana dos 497 municípios do RS');
+tableTwin($('#t1'), [
+    { h: 'Município', f: m => m.nome }, { h: 'Mesorregião', f: m => shortMeso(m.meso) }, { h: 'População', n: 1, f: m => fmt(m.pop) },
+    { h: 'PIB per capita', n: 1, f: m => brl(m.pib) }, { h: 'Renda mediana', n: 1, f: m => brl(m.mediana) }, { h: 'Grupo', f: m => (cls1.get(m.cod) === 'hi' ? 'PIB alto, renda baixa' : 'PIB baixo, renda alta') }
+], [...hi1, ...lo1]);
+
+/* =========================================================
+   2. Metade Sul x resto
+   ========================================================= */
+const SUL = ['Sudoeste Rio-grandense', 'Sudeste Rio-grandense'];
+const isSul = m => SUL.includes(m.meso);
+const sulArr = M.filter(isSul), norteArr = M.filter(m => !isSul(m));
+const mwMed = mannWhitney(norteArr.map(m => m.mediana), sulArr.map(m => m.mediana));
+const mwRaz = mannWhitney(norteArr.map(m => m.razao), sulArr.map(m => m.razao));
+const medSul = median(sulArr.map(m => m.mediana)), medNorte = median(norteArr.map(m => m.mediana));
+const razSul = median(sulArr.map(m => m.razao)), razNorte = median(norteArr.map(m => m.razao));
+const bot50 = [...M].sort((a, b) => a.mediana - b.mediana).slice(0, 50);
+const sulBot = bot50.filter(isSul).length, norteBot = 50 - sulBot;
+const bot2 = [...M].sort((a, b) => a.mediana - b.mediana).slice(0, 2);
+const mesoRows = Object.entries(M.reduce((o, m) => { (o[m.meso] ||= []).push(m); return o; }, {})).map(([k, arr]) => ({
+    meso: k, short: shortMeso(k), n: arr.length, pop: sum(arr.map(x => x.pop)), arr,
+    medMediana: median(arr.map(x => x.mediana)), medRazao: median(arr.map(x => x.razao)),
+    mediaPond: sum(arr.map(x => x.media * x.pop)) / sum(arr.map(x => x.pop)), sul: SUL.includes(k)
+})).sort((a, b) => a.medMediana - b.medMediana);
+
+$('#a2lead').textContent = 'Usando as mesorregiões do IBGE, defino a Metade Sul como Sudoeste e Sudeste Rio-grandense (' + sulArr.length + ' municípios). A renda mediana municipal ali é ' + pct(1 - medSul / medNorte) + ' menor que no resto do estado (' + brl(medSul) + ' contra ' + brl(medNorte) + '). Em concentração não há diferença detectável: razão mediana de ' + fmt(razSul, 2) + ' contra ' + fmt(razNorte, 2) + ' (' + pfmt(mwRaz.p) + ').';
+{
+    const p = $('#a2note'); const bold = t => { const b = document.createElement('b'); b.textContent = t; return b; };
+    const sameMeso = bot2[0].meso === bot2[1].meso;
+    p.replaceChildren('Sorteando um município de cada grupo, a chance de o do resto do estado ter renda mediana maior é de ', bold(pct(mwMed.auc)), ' (' + pfmt(mwMed.p) + '). ',
+        bold(sulBot + ' dos ' + sulArr.length), ' municípios da Metade Sul estão entre os 50 de menor renda do estado; no resto, ', bold(norteBot + ' de ' + norteArr.length), ' (' + pct(sulBot / sulArr.length) + ' contra ' + pct(norteBot / norteArr.length, 1) + '). ',
+        'Os dois de menor renda, ' + bot2[0].nome + ' e ' + bot2[1].nome + ', ficam ' + (sameMeso ? 'no ' + shortMeso(bot2[0].meso) : 'em ' + shortMeso(bot2[0].meso) + ' e ' + shortMeso(bot2[1].meso)) + (sameMeso && !SUL.includes(bot2[0].meso) ? ', não no Sul' : '') + '. Recorte operacional: estudos regionais usam definições de Metade Sul um pouco diferentes.');
+}
+fillLegend('#l2', [['var(--s2)', 'Metade Sul (Sudoeste + Sudeste)'], ['var(--s1)', 'Resto do estado'], ['line', 'Mediana da mesorregião']]);
+
+function stripPanel(host, key, dom, ticks, f, showLabels, titleText) {
+    return makeChart(host, W => 8 + mesoRows.length * 46 + 30, (chart, svg, W, H) => {
+        const labW = showLabels || narrow() ? (narrow() ? 116 : 132) : 8;
+        const m = { l: labW, r: 44, t: 8, b: 30 }, pw = W - m.l - m.r, rowH = 46, ph = mesoRows.length * rowH;
+        const sx = linScale(dom[0], dom[1], m.l, m.l + pw);
+        ticks.forEach(v => { S('line', { class: 'gridline', x1: sx(v), x2: sx(v), y1: m.t, y2: m.t + ph }, svg); T(f(v), { class: 'tick', x: sx(v), y: m.t + ph + 17, 'text-anchor': 'middle' }, svg); });
+        S('line', { class: 'axisline', x1: m.l, x2: m.l + pw, y1: m.t + ph, y2: m.t + ph }, svg);
+        mesoRows.forEach((r, i) => {
+            const cy = m.t + rowH * i + rowH / 2;
+            if (showLabels || narrow()) { T(r.short, { class: 'rowlab', x: m.l - 10, y: cy - 1, 'text-anchor': 'end' }, svg); T('(' + r.n + ')', { class: 'tick', x: m.l - 10, y: cy + 13, 'text-anchor': 'end' }, svg); }
+            r.arr.forEach(mu => {
+                const jit = ((((mu.cod * 2654435761) >>> 0) % 1000) / 1000 - 0.5) * (rowH - 16);
+                const px = sx(mu[key]), py = cy + jit; S('circle', { class: r.sul ? 'dot-a' : 'dot-b', cx: px, cy: py, r: 3.6 }, svg); chart.pts.push({ px, py, data: mu });
+            });
+            const mv = key === 'mediana' ? r.medMediana : r.medRazao;
+            S('line', { class: 'medtick', x1: sx(mv), x2: sx(mv), y1: cy - rowH * 0.36, y2: cy + rowH * 0.36 }, svg);
+            T(f(mv), { class: 'barval', x: m.l + pw + 8, y: cy + 4 }, svg);
+        });
+        chart.tipFn = mu => cityTip(mu, [['renda mediana', brl(mu.mediana)], ['razão média/mediana', fmt(mu.razao, 2)], ['população', fmt(mu.pop)]]);
+    }, titleText);
+}
+stripPanel($('#c2a'), 'mediana', [500, 2500], [500, 1000, 1500, 2000, 2500], v => fmt(v), true, 'Renda mediana dos municípios por mesorregião');
+stripPanel($('#c2b'), 'razao', [1, 2], [1, 1.25, 1.5, 1.75, 2], v => fmt(v, 2), false, 'Razão média/mediana dos municípios por mesorregião');
+tableTwin($('#t2'), [
+    { h: 'Mesorregião', f: r => r.short + (r.sul ? ' (Metade Sul)' : '') }, { h: 'Municípios', n: 1, f: r => fmt(r.n) }, { h: 'População', n: 1, f: r => fmt(r.pop) },
+    { h: 'Renda mediana (mediana dos municípios)', n: 1, f: r => brl(r.medMediana) }, { h: 'Renda média (ponderada por pop.)', n: 1, f: r => brl(r.mediaPond) }, { h: 'Razão (mediana dos municípios)', n: 1, f: r => fmt(r.medRazao, 2) }
+], mesoRows);
+
+/* =========================================================
+   3. Cidade pequena oscila mais
+   ========================================================= */
+const smallArr = M.filter(m => m.pop < 10000), midArr = M.filter(m => m.pop >= 10000 && m.pop < 50000);
+const sdSmall = sdev(smallArr.map(m => m.razao)), sdMid = sdev(midArr.map(m => m.razao));
+const perm = permSdRatio(smallArr.map(m => m.razao), midArr.map(m => m.razao), 4000);
+const byRazao = [...M].sort((a, b) => b.razao - a.razao);
+const ext20 = [...byRazao.slice(0, 10), ...byRazao.slice(-10)];
+const nSmall6 = M.filter(m => m.pop < 6000).length;
+const extSmall = ext20.filter(m => m.pop < 6000).length, extExp = 20 * nSmall6 / M.length;
+const pHyper = hyperTail(extSmall, 20, nSmall6, M.length);
+$('#a3lead').textContent = 'A razão média/mediana vem de amostra do Censo, então cidades pequenas tendem a ter valores mais instáveis. Nos dados, o desvio-padrão da razão é ' + fmt(sdSmall, 3) + ' abaixo de 10 mil habitantes e ' + fmt(sdMid, 3) + ' entre 10 e 50 mil (' + pct(perm.ratio - 1) + ' a mais; ' + pfmt(perm.p) + ' em teste de permutação). É compatível com ruído de amostra, mas também com economias pequenas realmente mais heterogêneas: os dados sozinhos não separam as duas explicações.';
+$('#a3note').replaceChildren((() => { const b = document.createElement('b'); b.textContent = extSmall + ' dos 20'; return b; })(), ' municípios nos extremos (10 mais e 10 menos concentrados) têm menos de 6 mil habitantes, contra ' + fmt(extExp, 1) + ' esperados se o tamanho não importasse (' + pfmt(pHyper) + '): evidência fraca de que cidade pequena aparece mais nos extremos. Use o filtro para ver o ranking só com cidades de tamanho maior.');
+fillLegend('#l3', [['var(--s2)', '5 mais concentrados'], ['var(--s1)', '5 menos concentrados'], ['var(--ctx)', 'Demais'], ['band', 'Faixa com 90% das cidades de tamanho parecido']]);
+
+const sortedPop = [...M].sort((a, b) => a.pop - b.pop);
+const bandPts = []; {
+    const K = 45, n = sortedPop.length; const idxs = []; for (let i = 0; i < n; i += 6) idxs.push(i); if (idxs[idxs.length - 1] !== n - 1) idxs.push(n - 1);
+    idxs.forEach(i => { const lo = Math.max(0, i - K), hi = Math.min(n, i + K + 1); const w = sortedPop.slice(lo, hi).map(m => m.razao); bandPts.push({ pop: sortedPop[i].pop, q05: quant(w, 0.05), q95: quant(w, 0.95) }); });
+}
+const razMed = median(M.map(m => m.razao));
+const st3 = { minPop: 0 };
+function state3() {
+    const flt = M.filter(m => m.pop >= st3.minPop).sort((a, b) => b.razao - a.razao);
+    const top = flt.slice(0, 5), bot = flt.slice(-5).reverse(); const cls = new Map(); top.forEach(m => cls.set(m.cod, 'hi')); bot.forEach(m => cls.set(m.cod, 'lo'));
+    return { flt, top, bot, cls };
+}
+const c3 = makeChart($('#c3'), W => (W < 560 ? 340 : 420), (chart, svg, W, H) => {
+    const { top, bot, cls } = state3();
+    const m = { l: 52, r: 28, t: 10, b: 46 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const xd = [1000, 2000000], yd = [1, 2];
+    const sx = logScale(xd[0], xd[1], m.l, m.l + pw), sy = linScale(yd[0], yd[1], m.t + ph, m.t);
+    drawAxes(svg, { m, pw, ph, sx, sy, W, H, xt: narrow() ? [1000, 10000, 100000, 1000000] : [1000, 3000, 10000, 30000, 100000, 300000, 1000000], yt: [1, 1.25, 1.5, 1.75, 2], xf: v => (v >= 1e6 ? fmt(v / 1e6) + ' mi' : fmt(v / 1000) + ' mil'), yf: v => fmt(v, 2), xTitle: 'População estimada, 2026 (escala logarítmica)', yTitle: 'Razão renda média/mediana' });
+    const up = bandPts.map(p => sx(p.pop).toFixed(1) + ',' + sy(Math.min(p.q95, yd[1])).toFixed(1)), dn = bandPts.slice().reverse().map(p => sx(p.pop).toFixed(1) + ',' + sy(Math.max(p.q05, yd[0])).toFixed(1));
+    S('polygon', { class: 'band', points: [...up, ...dn].join(' ') }, svg);
+    S('line', { class: 'refline', x1: m.l, x2: m.l + pw, y1: sy(razMed), y2: sy(razMed) }, svg);
+    T('mediana ' + fmt(razMed, 2), { class: 'cap', x: m.l + pw - 4, y: sy(razMed) - 5, 'text-anchor': 'end' }, svg);
+    if (st3.minPop > 0) { const x = sx(st3.minPop); S('line', { class: 'axisline', x1: x, x2: x, y1: m.t, y2: m.t + ph }, svg); }
+    const order = [...M].sort((a, b) => (cls.has(a.cod) ? 1 : 0) - (cls.has(b.cod) ? 1 : 0));
+    order.forEach(mu => {
+        const c = cls.get(mu.cod), out = mu.pop < st3.minPop; const px = sx(mu.pop), py = sy(mu.razao);
+        S('circle', { class: c ? 'dot-' + c : out ? 'dot-dim' : 'dot-ctx', cx: px, cy: py, r: c ? 5 : 3.6 }, svg); if (!out) chart.pts.push({ px, py, data: mu });
+    });
+    const labSrc = [...top.slice(0, 3), ...bot.slice(0, 3)]; const lab = labSrc.map(mu => ({ x: sx(mu.pop), y: sy(mu.razao), text: mu.nome }));
+    const avoid = [...top, ...bot].map(mu => ({ x: sx(mu.pop), y: sy(mu.razao) }));
+    const fixed = [{ x0: m.l + pw - 4 - 76, x1: m.l + pw, y0: sy(razMed) - 18, y1: sy(razMed) - 1 }];
+    placeLabels(lab, avoid, { x0: m.l + 2, x1: m.l + pw, y0: m.t, y1: m.t + ph }, fixed).forEach(l => T(l.text, { class: 'lbl', x: l.x, y: l.y, 'text-anchor': l.a }, svg));
+    chart.tipFn = mu => cityTip(mu, [['razão média/mediana', fmt(mu.razao, 2)], ['população', fmt(mu.pop)], ['renda mediana', brl(mu.mediana)]]);
+}, 'Dispersão da razão média/mediana contra a população dos municípios do RS');
+function lists3() {
+    const { flt, top, bot } = state3(); $('#minpopn').textContent = fmt(flt.length) + ' de ' + M.length + ' municípios';
+    const cols = [{ h: '#', n: 1, f: r => r.i }, { h: 'Município', f: r => r.m.nome }, { h: 'População', n: 1, f: r => fmt(r.m.pop) }, { h: 'Razão', n: 1, f: r => fmt(r.m.razao, 2) }];
+    const wrapT = document.createElement('div'), wrapB = document.createElement('div'); tableTwin(wrapT, cols, top.map((m, i) => ({ m, i: i + 1 }))); tableTwin(wrapB, cols, bot.map((m, i) => ({ m, i: flt.length - i })));
+    wrapT.firstChild.style.maxHeight = 'none'; wrapB.firstChild.style.maxHeight = 'none';
+    $('#top5').replaceChildren(wrapT.firstChild); $('#bot5').replaceChildren(wrapB.firstChild);
+}
+$('#minpop').addEventListener('change', e => { st3.minPop = +e.target.value; c3.render(); lists3(); });
+lists3();
+const sizeBins = [[0, 3000, 'Menos de 3 mil'], [3000, 5000, '3 a 5 mil'], [5000, 10000, '5 a 10 mil'], [10000, 20000, '10 a 20 mil'], [20000, 50000, '20 a 50 mil'], [50000, 1e12, '50 mil ou mais']].map(([lo, hi, l]) => { const a = M.filter(m => m.pop >= lo && m.pop < hi).map(m => m.razao); return { l, n: a.length, mean: mean(a), sd: sdev(a), min: Math.min(...a), max: Math.max(...a) }; });
+tableTwin($('#t3'), [{ h: 'Faixa de população', f: r => r.l }, { h: 'Municípios', n: 1, f: r => fmt(r.n) }, { h: 'Razão média', n: 1, f: r => fmt(r.mean, 3) }, { h: 'Desvio-padrão', n: 1, f: r => fmt(r.sd, 3) }, { h: 'Mín.', n: 1, f: r => fmt(r.min, 2) }, { h: 'Máx.', n: 1, f: r => fmt(r.max, 2) }], sizeBins);
+
+/* =========================================================
+   4. Composição setorial
+   ========================================================= */
+const SECT = [['ind', 'Indústria', 'Indústria'], ['agro', 'Agropecuária', 'Agropecuária'], ['serv', 'Serviços (exceto adm. pública)', 'Serviços'], ['adm', 'Administração pública', 'Adm. pública']];
+const rhoRows = SECT.map(([k, l, ls]) => ({ k, l, ls, razao: spearman(M.map(m => m[k]), M.map(m => m.razao)), mediana: spearman(M.map(m => m[k]), M.map(m => m.mediana)) }));
+const names4 = ['Constante', 'Agropecuária', 'Indústria', 'Administração pública', 'log10(população)'];
+const X4 = M.map(m => [1, m.agro / 10, m.ind / 10, m.adm / 10, Math.log10(m.pop)]);
+const olsRaz = ols(X4, M.map(m => m.razao), names4);
+const indRho = rhoRows.find(r => r.k === 'ind').mediana.rho;
+const cRaz = Object.fromEntries(olsRaz.coef.map(c => [c.nm, c]));
+$('#a4lead').textContent = 'Cruzei a razão com a fatia de cada setor no valor adicionado do município (soma de 2019 a 2021, o último período com essa abertura). Em relação a serviços, municípios com mais administração pública e mais indústria tendem a ter renda menos concentrada; a agropecuária pesa pouco. A indústria é o setor mais associado a renda mediana alta (correlação ' + fmt(indRho, 2) + ').';
+$('#a4note').replaceChildren((() => { const b = document.createElement('b'); b.textContent = pct(olsRaz.r2); return b; })(), ' da variação na concentração é explicada pela composição setorial no modelo (mais o tamanho): relevante, mas longe de tudo. É associação entre municípios, não causa, e o valor adicionado é registrado onde a produção acontece, nem sempre onde o trabalhador mora. Isso testa a parte "industrial" da hipótese que o README levantava sobre a Serra Gaúcha (renda alta e concentração menor); a parte "pulverizada" (muitas empresas médias) não dá para testar com estes dados.');
+fillLegend('#l4', [['var(--s2)', 'Com a concentração (razão)'], ['var(--s1)', 'Com o nível de renda (mediana)']]);
+makeChart($('#c4'), W => 40 + rhoRows.length * 62 + 34, (chart, svg, W, H) => {
+    const labW = narrow() ? 112 : 190; const m = { l: labW, r: 20, t: 10, b: 34 }, pw = W - m.l - m.r, rowH = 62, ph = rhoRows.length * rowH;
+    const sx = linScale(-0.5, 0.5, m.l, m.l + pw);
+    [-0.4, -0.2, 0, 0.2, 0.4].forEach(v => { S('line', { class: v === 0 ? 'axisline' : 'gridline', x1: sx(v), x2: sx(v), y1: m.t, y2: m.t + ph }, svg); T((v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), 1), { class: 'tick', x: sx(v), y: m.t + ph + 17, 'text-anchor': 'middle' }, svg); });
+    T('Correlação de Spearman (−1 a +1)', { class: 'axis-title', x: m.l + pw / 2, y: H - 4, 'text-anchor': 'middle' }, svg);
+    const bh = 15, gap = 4;
+    rhoRows.forEach((r, i) => {
+        const cy = m.t + rowH * i + rowH / 2; T(narrow() ? r.ls : r.l, { class: 'rowlab', x: m.l - 10, y: cy + 4, 'text-anchor': 'end' }, svg);
+        [['bar-a', r.razao, 'razão', -1], ['bar-b', r.mediana, 'mediana', 1]].forEach(([cl, s, nm, dir]) => {
+            const y = cy + (dir === -1 ? -bh - gap / 2 : gap / 2), v = s.rho, x0 = sx(0), x1 = sx(v), rad = 4, w = Math.abs(x1 - x0), left = Math.min(x0, x1);
+            const d = v >= 0 ? 'M' + x0 + ',' + y + 'H' + (x1 - rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + bh - rad) + 'Q' + x1 + ',' + (y + bh) + ' ' + (x1 - rad) + ',' + (y + bh) + 'H' + x0 + 'Z'
+                : 'M' + x0 + ',' + y + 'H' + (x1 + rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + bh - rad) + 'Q' + x1 + ',' + (y + bh) + ' ' + (x1 + rad) + ',' + (y + bh) + 'H' + x0 + 'Z';
+            const bar = S('path', { class: cl, d }, svg);
+            T(sgn(v, 2), { class: 'barval', x: v >= 0 ? x1 + 6 : x1 - 6, y: y + bh - 3.5, 'text-anchor': v >= 0 ? 'start' : 'end' }, svg);
+            const hit = S('rect', { x: left - 6, y: y - 2, width: w + 12, height: bh + 4, fill: 'transparent' }, svg);
+            hit.addEventListener('pointermove', e => showTip(e, { title: r.l, rows: [['correlação com ' + nm, sgn(v, 2)], [pfmt(s.p), '']] }));
+            hit.addEventListener('pointerleave', hideTip);
+        });
+    });
+}, 'Correlação de Spearman entre a fatia de cada setor e a concentração e o nível de renda');
+tableTwin($('#t4'), [{ h: 'Fatia do setor', f: r => r.l }, { h: 'Correlação com a razão', n: 1, f: r => sgn(r.razao.rho, 3) + ' (' + pfmt(r.razao.p) + ')' }, { h: 'Correlação com a renda mediana', n: 1, f: r => sgn(r.mediana.rho, 3) + ' (' + pfmt(r.mediana.p) + ')' }], rhoRows);
+{
+    const host = document.createElement('div'); host.style.marginTop = '.75rem';
+    const cap = document.createElement('p'); cap.className = 'note'; cap.textContent = 'Modelo: razão média/mediana explicada pela fatia de cada setor (efeito de +10 pontos percentuais, em relação a serviços) e pelo tamanho da cidade. Erros-padrão robustos (HC3). R² = ' + fmt(olsRaz.r2, 2) + ', n = ' + M.length + '.';
+    const t = document.createElement('div'); tableTwin(t, [{ h: 'Variável', f: c => (c.nm === 'Constante' ? 'Constante' : c.nm === 'log10(população)' ? 'log10(população), por 10× mais habitantes' : c.nm + ' (+10 p.p.)') }, { h: 'Efeito na razão', n: 1, f: c => sgn(c.b, 3) }, { h: 'Erro-padrão', n: 1, f: c => fmt(c.se, 3) }, { h: 'Significância', n: 1, f: c => pfmt(c.p) }], olsRaz.coef.filter(c => c.nm !== 'Constante'));
+    host.append(cap, t.firstChild); $('#t4').appendChild(host);
+}
+
+/* ---------- destaques (topo) ---------- */
+const tiles = [
+    [fmt(sp1.rho, 2), 'correlação entre PIB per capita e renda mediana', 'escala de −1 a +1'],
+    ['−' + pct(1 - medSul / medNorte), 'renda mediana da Metade Sul frente ao resto do RS', 'concentração: sem diferença detectável'],
+    ['+' + pct(perm.ratio - 1), 'mais dispersão da razão em cidades com menos de 10 mil habitantes', 'frente às de 10 a 50 mil'],
+    [fmt(indRho, 2), 'correlação entre a fatia da indústria e a renda mediana', 'a maior entre os quatro setores']
+];
+$('#tiles').replaceChildren(...tiles.map(([v, l, s]) => { const d = document.createElement('div'); d.className = 'tile'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'l'; b.textContent = l; const c = document.createElement('div'); c.className = 's'; c.textContent = s; d.append(a, b, c); return d; }));
+})();
+</script>
+</body>
+</html>
