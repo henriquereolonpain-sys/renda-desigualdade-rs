@@ -14,12 +14,13 @@ PIB per capita também não segue a lógica óbvia de "cidade grande = mais rica
 
 ## Análises
 
-A página [analise.html](https://henriquepain.com.br/renda-desigualdade-rs/analise.html) responde quatro perguntas sobre os 497 municípios, com gráficos interativos e todos os números calculados na hora a partir dos CSVs deste repositório:
+A página [analise.html](https://henriquepain.com.br/renda-desigualdade-rs/analise.html) responde cinco perguntas sobre os 497 municípios, com gráficos interativos e todos os números calculados na hora a partir dos CSVs deste repositório:
 
 1. **PIB alto não garante renda alta.** Correlação de Spearman de 0,39 entre PIB per capita e renda mediana; em escala log-log o PIB explica só 14% da variação da renda. 26 municípios estão no quarto mais alto de PIB per capita e no quarto mais baixo de renda mediana (Muitos Capões, Triunfo e Candiota à frente).
 2. **A Metade Sul é mais pobre, mas não mais desigual.** Sudoeste e Sudeste Rio-grandense (44 municípios) têm renda mediana 13% menor que o resto do estado (Mann-Whitney, p < 0,001), mas a razão média/mediana não difere de forma detectável (1,36 vs. 1,33; p = 0,47). Os dois municípios de menor renda do estado ficam no Noroeste.
 3. **Cidade pequena oscila mais.** O desvio-padrão da razão é 62% maior abaixo de 10 mil habitantes que entre 10 e 50 mil (teste de permutação, p < 0,001). Mas a evidência de que cidade pequena domine os extremos é fraca: 14 dos 20 extremos têm menos de 6 mil habitantes, contra 10,6 esperados (p = 0,09). A página tem um filtro de população mínima pro ranking.
 4. **A composição da economia explica parte da concentração.** Em relação a serviços, mais administração pública e mais indústria se associam a razão menor (regressão com erros-padrão robustos, R² = 0,20); a indústria é o setor mais associado a renda mediana alta (Spearman 0,41).
+5. **Cidade industrial: mais emprego formal, salário quase igual.** Fatia da indústria e empregos formais por habitante andam juntos (Spearman 0,73). O quarto mais industrial dos municípios tem 29 empregos formais por 100 habitantes, contra 11 no quarto menos industrial, mas o salário médio formal é praticamente o mesmo (R$ 2.869 vs. R$ 2.848; p = 0,55). No modelo com todos os setores e o tamanho da cidade, o que acompanha a renda mediana é o emprego formal (+10 empregos por 100 habitantes, +6,9% de renda), e trocar serviços por indústria se associa a razão menor. As tabelas do IBGE só trazem tamanho de empresa por município até 2006, então a análise não separa uma fábrica grande de várias médias.
 
 Tudo é associação entre municípios, não causa. Limites e método completos estão no fim da própria página.
 
@@ -540,10 +541,11 @@ A razão entre renda média e renda mediana ataca o mesmo problema por outro ân
 | Renda domiciliar per capita, média e mediana | IBGE, Censo Demográfico 2022 (SIDRA, tabela [10295](https://sidra.ibge.gov.br/tabela/10295)) | 2022 | Todos os municípios |
 | Mesorregião e microrregião | IBGE, [API de localidades](https://servicodados.ibge.gov.br/api/v1/localidades/estados/43/municipios) (`data/regioes.csv`) | vigente | Todos os municípios |
 | Valor adicionado bruto por setor (agropecuária, indústria, serviços, administração pública) | IBGE, PIB dos Municípios (SIDRA, tabela [5938](https://sidra.ibge.gov.br/tabela/5938), variáveis 498, 513, 517, 6575 e 525), via [API de agregados](https://servicodados.ibge.gov.br/api/v3/agregados) (`data/vab_setores.csv`) | soma 2019 a 2021 | Todos os municípios |
+| Unidades locais, pessoal ocupado, empregados formais e salário médio mensal | IBGE, Cadastro Central de Empresas (SIDRA, tabela [9509](https://sidra.ibge.gov.br/tabela/9509)), via API de agregados (`data/cempre.csv`) | 2022 e 2023 | Todos os municípios |
 | Salário médio mensal (trabalhadores formais) | IBGE Cidades, Cadastro Central de Empresas | 2023 | Só as 4 cidades originais do Planalto Médio |
 | Índice de Gini | Atlas do Desenvolvimento Humano (PNUD, Ipea, FJP), Censo Demográfico | 2010 | Só as 4 cidades originais do Planalto Médio |
 
-**Por que Gini e salário médio só aparecem pras 4 cidades originais no `cidades.csv`**: o Gini municipal do Atlas Brasil só existe por página individual (e o do Censo 2022 ainda não saiu por município). O salário médio dos trabalhadores formais, por outro lado, **existe em lote pros 497 municípios** no SIDRA (tabela [9509](https://sidra.ibge.gov.br/tabela/9509), 2022 a 2024). Uma versão anterior deste README dizia o contrário; estava errado, e o indicador ainda não foi incorporado ao `cidades.csv`. PIB per capita e renda 2022 têm tabelas SIDRA que aceitam uma lista de códigos de município numa chamada só, por isso são a base do dataset completo.
+**Por que Gini e salário médio só aparecem pras 4 cidades originais no `cidades.csv`**: o Gini municipal do Atlas Brasil só existe por página individual (e o do Censo 2022 ainda não saiu por município). O salário médio dos trabalhadores formais, por outro lado, **existe em lote pros 497 municípios** no SIDRA (tabela [9509](https://sidra.ibge.gov.br/tabela/9509), 2022 a 2024). Uma versão anterior deste README dizia o contrário; estava errado. O salário médio dos 497 está agora em `data/cempre.csv` e é usado na Análise 5. PIB per capita e renda 2022 têm tabelas SIDRA que aceitam uma lista de códigos de município numa chamada só, por isso são a base do dataset completo.
 
 **Composição setorial (`vab_setores.csv`)**: nessa tabela do IBGE a abertura do valor adicionado por setor só está publicada até 2021 (2022 e 2023 trazem só o PIB total). Por isso o projeto usa a soma de 2019 a 2021, que suaviza um ano atípico de safra em município pequeno. As quatro fatias somam o total em todos os 497 municípios (diferença máxima de 0,0015%, arredondamento). O endpoint `apisidra.ibge.gov.br` passou a responder com um desafio anti-bot durante este trabalho; os dados foram obtidos pela API de agregados do IBGE (`servicodados.ibge.gov.br`), que serve as mesmas tabelas.
 
@@ -572,6 +574,7 @@ analise.html                 quatro análises com gráficos (números calculados
 data/cidades.csv             dataset consolidado, uma linha por município
 data/regioes.csv             mesorregião, microrregião e região intermediária de cada município
 data/vab_setores.csv         valor adicionado por setor (soma 2019 a 2021) e participação de cada setor
+data/cempre.csv              empregos formais e salário médio por município (Cadastro Central de Empresas, 2022 e 2023)
 data/rs_municipios.geojson   contorno dos municípios do RS (IBGE, malhas territoriais)
 data/rs_estado.geojson       contorno do estado do RS (usado no efeito de foco do mapa)
 ```
@@ -582,7 +585,8 @@ data/rs_estado.geojson       contorno do estado do RS (usado no efeito de foco d
 - [x] ~~Visualização interativa~~: mapa com hover em `mapa.html`
 - [x] ~~Expandir pra cobertura completa do RS~~: os 497 municípios do estado, sem exceção
 - [x] ~~Deixar claro que concentração ≠ nível de renda~~: alternador de visão no mapa (razão vs. renda mediana)
-- [x] ~~Análises além do mapa~~: PIB vs. renda, Metade Sul vs. resto, ruído em cidade pequena e composição setorial (`analise.html`)
+- [x] ~~Análises além do mapa~~: PIB vs. renda, Metade Sul vs. resto, ruído em cidade pequena, composição setorial e emprego formal (`analise.html`)
+- [ ] Tamanho dos estabelecimentos por município via RAIS, pra separar uma fábrica grande de muitas empresas médias
 - [ ] Recortes regionais oficiais mais finos (COREDEs) pra comparar regiões do estado, hoje só as 7 mesorregiões do IBGE
 - [ ] Separar ruído de amostra de diferença real na razão, se o IBGE publicar o erro amostral por município
 - [ ] Indicadores de qualidade de vida que cobrem todo município (saneamento, mortalidade infantil, IDEB) como eixo complementar

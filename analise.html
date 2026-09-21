@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Análises: renda e desigualdade no RS</title>
-<meta name="description" content="Quatro análises sobre renda nos 497 municípios do Rio Grande do Sul: PIB vs. renda, Metade Sul, ruído em cidades pequenas e composição setorial.">
+<meta name="description" content="Cinco análises sobre renda nos 497 municípios do Rio Grande do Sul: PIB vs. renda, Metade Sul, ruído em cidades pequenas, composição setorial e emprego formal.">
 <style>
     * { box-sizing: border-box; }
     :root {
@@ -114,6 +114,7 @@
     .dot-dim { fill: var(--ctx); fill-opacity: .16; }
     .dot-hi { fill: var(--s2); stroke: var(--surface); stroke-width: 2; }
     .dot-lo { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+    .dot-ctx-hl { fill: var(--ctx); stroke: var(--surface); stroke-width: 2; }
     .dot-a { fill: var(--s2); fill-opacity: .8; }
     .dot-b { fill: var(--s1); fill-opacity: .8; }
     .wash-hi { fill: var(--s2); fill-opacity: .09; }
@@ -155,7 +156,7 @@
 
     <span class="eyebrow">Análises · Dados públicos IBGE</span>
     <h1>O que os dados dizem sobre renda no Rio Grande do Sul</h1>
-    <p class="lead">Quatro perguntas sobre os 497 municípios, respondidas com os mesmos dados do mapa. Todos os números abaixo são calculados na hora a partir dos CSVs do repositório. Onde algo é hipótese e não resultado, está escrito.</p>
+    <p class="lead">Cinco perguntas sobre os 497 municípios, respondidas com os mesmos dados do mapa. Todos os números abaixo são calculados na hora a partir dos CSVs do repositório. Onde algo é hipótese e não resultado, está escrito.</p>
 
     <div class="tiles" id="tiles"></div>
     <noscript><p class="prose">Esta página precisa de JavaScript para calcular os números e desenhar os gráficos.</p></noscript>
@@ -234,6 +235,28 @@
         <details class="twin"><summary>Ver como tabela (correlações e modelo)</summary><div id="t4"></div></details>
     </section>
 
+    <section id="a5">
+        <h2>5. Cidade industrial: mais emprego formal, salário quase igual</h2>
+        <p class="prose" id="a5lead"></p>
+        <figure class="fig" style="margin-inline:0">
+            <div class="fig-h">
+                <h3 class="fig-t">Correlação (Spearman) de cada indicador com salário, renda e concentração</h3>
+                <div class="legend" id="l5a"></div>
+            </div>
+            <div class="chart" id="c5a"></div>
+        </figure>
+        <p class="note" id="a5note1"></p>
+        <figure class="fig" style="margin-inline:0">
+            <div class="fig-h">
+                <h3 class="fig-t">Empregos formais por 100 habitantes × renda mediana</h3>
+                <div class="legend" id="l5b"></div>
+            </div>
+            <div class="chart" id="c5b"></div>
+        </figure>
+        <p class="note" id="a5note2"></p>
+        <details class="twin"><summary>Ver como tabela (grupos e modelo)</summary><div id="t5"></div></details>
+    </section>
+
     <section id="metodo" class="method">
         <h2>Método e limites</h2>
         <h3>Dados</h3>
@@ -241,6 +264,7 @@
             <li><a href="data/cidades.csv">cidades.csv</a>: população, PIB per capita (2023) e renda domiciliar per capita (Censo 2022), como no mapa.</li>
             <li><a href="data/regioes.csv">regioes.csv</a>: mesorregião e microrregião de cada município (API de localidades do IBGE).</li>
             <li><a href="data/vab_setores.csv">vab_setores.csv</a>: valor adicionado bruto por setor, soma de 2019 a 2021 (tabela 5938 do SIDRA, via API de agregados). É o último ano com essa abertura na tabela; 2022 e 2023 só trazem o total.</li>
+            <li><a href="data/cempre.csv">cempre.csv</a>: unidades locais, pessoal ocupado, empregados formais (assalariados) e salário médio mensal, 2022 e 2023 (Cadastro Central de Empresas, tabela 9509 do SIDRA). Cobre empresas, órgãos públicos e entidades sem fins lucrativos com CNPJ.</li>
         </ul>
         <h3>Estatística</h3>
         <ul>
@@ -248,6 +272,7 @@
             <li><b>Metade Sul vs. resto</b>: teste de Mann-Whitney (compara as distribuições sem supor formato). A "chance" citada é a probabilidade de um município sorteado de um grupo superar um sorteado do outro (empates contam meio).</li>
             <li><b>Cidade pequena</b>: a razão entre desvios-padrão é testada por permutação (embaralhar os grupos 4.000 vezes). A comparação de extremos usa a distribuição hipergeométrica.</li>
             <li><b>Composição setorial</b>: regressão linear com erros-padrão robustos (HC3), pois a variância muda com o tamanho da cidade. Como as quatro fatias somam 100%, serviços é a categoria de referência.</li>
+            <li><b>Indústria e emprego formal</b>: os grupos são o quarto de municípios com maior e o com menor fatia da indústria (sem sobreposição), comparados com Mann-Whitney. O modelo repete o da análise 4 acrescentando os empregos formais por 100 habitantes; salário e renda entram em log, então os efeitos são percentuais.</li>
         </ul>
         <h3>Limites</h3>
         <ul>
@@ -256,6 +281,8 @@
             <li>A razão média/mediana vem de amostra do Censo e não é o índice de Gini (que exige a distribuição completa). É um indicador de concentração, não uma medida de desigualdade completa.</li>
             <li>"Metade Sul" é um recorte operacional (Sudoeste e Sudeste Rio-grandense). Estudos regionais usam definições um pouco diferentes, e 44 municípios é um grupo pequeno.</li>
             <li>A comparação por tamanho não separa ruído de amostra de diferenças reais entre economias pequenas.</li>
+            <li>Empregos formais são contados onde a empresa está, não onde o trabalhador mora, e incluem o setor público. Os empregos de 2022 são divididos pela população estimada de 2026. O salário médio cobre só quem tem carteira assinada.</li>
+            <li>As tabelas do IBGE só trazem o tamanho dos estabelecimentos por município até 2006. Por isso a análise 5 não separa uma fábrica grande de várias médias, nem multinacional de empresa local; para isso seria preciso a RAIS por estabelecimento.</li>
         </ul>
     </section>
 
@@ -343,14 +370,16 @@ function hyperTail(x, n, K, N) { // P(X >= x) sorteando n de N com K "sucessos"
 }
 
 /* ---------- dados ---------- */
-const [ci, re, vb] = await Promise.all([loadCsv('data/cidades.csv'), loadCsv('data/regioes.csv'), loadCsv('data/vab_setores.csv')]);
+const [ci, re, vb, ce] = await Promise.all([loadCsv('data/cidades.csv'), loadCsv('data/regioes.csv'), loadCsv('data/vab_setores.csv'), loadCsv('data/cempre.csv')]);
 const reMap = Object.fromEntries(re.map(r => [r.codigo_ibge, r]));
 const vbMap = Object.fromEntries(vb.map(r => [r.codigo_ibge, r]));
+const ceMap = Object.fromEntries(ce.map(r => [r.codigo_ibge, r]));
 const M = ci.map(r => ({
     cod: +r.codigo_ibge, nome: r.municipio, pop: +r.populacao_2026, pib: +r.pib_per_capita_reais_2023,
     media: +r.renda_media_domiciliar_2022, mediana: +r.renda_mediana_domiciliar_2022, razao: +r.razao_media_mediana_2022,
     meso: reMap[r.codigo_ibge].mesorregiao, agro: +vbMap[r.codigo_ibge].pct_agro, ind: +vbMap[r.codigo_ibge].pct_industria,
-    serv: +vbMap[r.codigo_ibge].pct_servicos, adm: +vbMap[r.codigo_ibge].pct_adm_publica
+    serv: +vbMap[r.codigo_ibge].pct_servicos, adm: +vbMap[r.codigo_ibge].pct_adm_publica,
+    sal: +ceMap[r.codigo_ibge].salario_medio_reais_2022, formal: 100 * (+ceMap[r.codigo_ibge].pessoal_assalariado_2022) / +r.populacao_2026
 }));
 const shortMeso = n => n.replace(' Rio-grandense', '').replace(' de Porto Alegre', '');
 const byName = (a, b) => a.nome.localeCompare(b.nome, 'pt-BR');
@@ -451,6 +480,34 @@ const legendItem = (kind, text) => {
 };
 const fillLegend = (id, items) => { const host = $(id); host.replaceChildren(...items.map(([k, t]) => legendItem(k, t))); };
 const cityTip = (m, extra) => ({ title: m.nome, rows: [[shortMeso(m.meso), ''], ...extra] });
+
+// barras horizontais de correlação: uma linha por item, duas séries (s[0] acima, s[1] abaixo)
+function corrBars(host, rows, series, dom, label) {
+    return makeChart(host, W => 40 + rows.length * 62 + 34, (chart, svg, W, H) => {
+        const labW = narrow() ? 112 : 190; const m = { l: labW, r: 20, t: 10, b: 34 }, pw = W - m.l - m.r, rowH = 62, ph = rows.length * rowH;
+        const sx = linScale(-dom, dom, m.l, m.l + pw), step = narrow() ? 0.4 : 0.2, kmax = Math.floor(dom / step + 1e-9);
+        for (let k = -kmax; k <= kmax; k++) {
+            const v = +(k * step).toFixed(2);
+            S('line', { class: v === 0 ? 'axisline' : 'gridline', x1: sx(v), x2: sx(v), y1: m.t, y2: m.t + ph }, svg);
+            T((v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), 1), { class: 'tick', x: sx(v), y: m.t + ph + 17, 'text-anchor': 'middle' }, svg);
+        }
+        T('Correlação de Spearman (−1 a +1)', { class: 'axis-title', x: m.l + pw / 2, y: H - 4, 'text-anchor': 'middle' }, svg);
+        const bh = 15, gap = 4;
+        rows.forEach((r, i) => {
+            const cy = m.t + rowH * i + rowH / 2; T(narrow() ? r.ls : r.l, { class: 'rowlab', x: m.l - 10, y: cy + 4, 'text-anchor': 'end' }, svg);
+            series.forEach((se, j) => {
+                const s = r.s[j], v = s.rho, y = cy + (j === 0 ? -bh - gap / 2 : gap / 2), x0 = sx(0), x1 = sx(v), w = Math.abs(x1 - x0), rad = Math.min(4, w), left = Math.min(x0, x1);
+                const d = v >= 0 ? 'M' + x0 + ',' + y + 'H' + (x1 - rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + bh - rad) + 'Q' + x1 + ',' + (y + bh) + ' ' + (x1 - rad) + ',' + (y + bh) + 'H' + x0 + 'Z'
+                    : 'M' + x0 + ',' + y + 'H' + (x1 + rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + bh - rad) + 'Q' + x1 + ',' + (y + bh) + ' ' + (x1 + rad) + ',' + (y + bh) + 'H' + x0 + 'Z';
+                S('path', { class: se.cls, d }, svg);
+                T(sgn(v, 2), { class: 'barval', x: v >= 0 ? x1 + 6 : x1 - 6, y: y + bh - 3.5, 'text-anchor': v >= 0 ? 'start' : 'end' }, svg);
+                const hit = S('rect', { x: left - 6, y: y - 2, width: w + 12, height: bh + 4, fill: 'transparent' }, svg);
+                hit.addEventListener('pointermove', e => showTip(e, { title: r.l, rows: [[se.nm, sgn(v, 2)], [pfmt(s.p), '']] }));
+                hit.addEventListener('pointerleave', hideTip);
+            });
+        });
+    }, label);
+}
 
 /* =========================================================
    1. PIB per capita x renda mediana
@@ -636,32 +693,100 @@ const cRaz = Object.fromEntries(olsRaz.coef.map(c => [c.nm, c]));
 $('#a4lead').textContent = 'Cruzei a razão com a fatia de cada setor no valor adicionado do município (soma de 2019 a 2021, o último período com essa abertura). Em relação a serviços, municípios com mais administração pública e mais indústria tendem a ter renda menos concentrada; a agropecuária pesa pouco. A indústria é o setor mais associado a renda mediana alta (correlação ' + fmt(indRho, 2) + ').';
 $('#a4note').replaceChildren((() => { const b = document.createElement('b'); b.textContent = pct(olsRaz.r2); return b; })(), ' da variação na concentração é explicada pela composição setorial no modelo (mais o tamanho): relevante, mas longe de tudo. É associação entre municípios, não causa, e o valor adicionado é registrado onde a produção acontece, nem sempre onde o trabalhador mora. Isso testa a parte "industrial" da hipótese que o README levantava sobre a Serra Gaúcha (renda alta e concentração menor); a parte "pulverizada" (muitas empresas médias) não dá para testar com estes dados.');
 fillLegend('#l4', [['var(--s2)', 'Com a concentração (razão)'], ['var(--s1)', 'Com o nível de renda (mediana)']]);
-makeChart($('#c4'), W => 40 + rhoRows.length * 62 + 34, (chart, svg, W, H) => {
-    const labW = narrow() ? 112 : 190; const m = { l: labW, r: 20, t: 10, b: 34 }, pw = W - m.l - m.r, rowH = 62, ph = rhoRows.length * rowH;
-    const sx = linScale(-0.5, 0.5, m.l, m.l + pw);
-    [-0.4, -0.2, 0, 0.2, 0.4].forEach(v => { S('line', { class: v === 0 ? 'axisline' : 'gridline', x1: sx(v), x2: sx(v), y1: m.t, y2: m.t + ph }, svg); T((v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), 1), { class: 'tick', x: sx(v), y: m.t + ph + 17, 'text-anchor': 'middle' }, svg); });
-    T('Correlação de Spearman (−1 a +1)', { class: 'axis-title', x: m.l + pw / 2, y: H - 4, 'text-anchor': 'middle' }, svg);
-    const bh = 15, gap = 4;
-    rhoRows.forEach((r, i) => {
-        const cy = m.t + rowH * i + rowH / 2; T(narrow() ? r.ls : r.l, { class: 'rowlab', x: m.l - 10, y: cy + 4, 'text-anchor': 'end' }, svg);
-        [['bar-a', r.razao, 'razão', -1], ['bar-b', r.mediana, 'mediana', 1]].forEach(([cl, s, nm, dir]) => {
-            const y = cy + (dir === -1 ? -bh - gap / 2 : gap / 2), v = s.rho, x0 = sx(0), x1 = sx(v), rad = 4, w = Math.abs(x1 - x0), left = Math.min(x0, x1);
-            const d = v >= 0 ? 'M' + x0 + ',' + y + 'H' + (x1 - rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + bh - rad) + 'Q' + x1 + ',' + (y + bh) + ' ' + (x1 - rad) + ',' + (y + bh) + 'H' + x0 + 'Z'
-                : 'M' + x0 + ',' + y + 'H' + (x1 + rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + bh - rad) + 'Q' + x1 + ',' + (y + bh) + ' ' + (x1 + rad) + ',' + (y + bh) + 'H' + x0 + 'Z';
-            const bar = S('path', { class: cl, d }, svg);
-            T(sgn(v, 2), { class: 'barval', x: v >= 0 ? x1 + 6 : x1 - 6, y: y + bh - 3.5, 'text-anchor': v >= 0 ? 'start' : 'end' }, svg);
-            const hit = S('rect', { x: left - 6, y: y - 2, width: w + 12, height: bh + 4, fill: 'transparent' }, svg);
-            hit.addEventListener('pointermove', e => showTip(e, { title: r.l, rows: [['correlação com ' + nm, sgn(v, 2)], [pfmt(s.p), '']] }));
-            hit.addEventListener('pointerleave', hideTip);
-        });
-    });
-}, 'Correlação de Spearman entre a fatia de cada setor e a concentração e o nível de renda');
+corrBars($('#c4'), rhoRows.map(r => ({ l: r.l, ls: r.ls, s: [r.razao, r.mediana] })),
+    [{ cls: 'bar-a', nm: 'correlação com a razão' }, { cls: 'bar-b', nm: 'correlação com a renda mediana' }], 0.5,
+    'Correlação de Spearman entre a fatia de cada setor e a concentração e o nível de renda');
 tableTwin($('#t4'), [{ h: 'Fatia do setor', f: r => r.l }, { h: 'Correlação com a razão', n: 1, f: r => sgn(r.razao.rho, 3) + ' (' + pfmt(r.razao.p) + ')' }, { h: 'Correlação com a renda mediana', n: 1, f: r => sgn(r.mediana.rho, 3) + ' (' + pfmt(r.mediana.p) + ')' }], rhoRows);
 {
     const host = document.createElement('div'); host.style.marginTop = '.75rem';
     const cap = document.createElement('p'); cap.className = 'note'; cap.textContent = 'Modelo: razão média/mediana explicada pela fatia de cada setor (efeito de +10 pontos percentuais, em relação a serviços) e pelo tamanho da cidade. Erros-padrão robustos (HC3). R² = ' + fmt(olsRaz.r2, 2) + ', n = ' + M.length + '.';
     const t = document.createElement('div'); tableTwin(t, [{ h: 'Variável', f: c => (c.nm === 'Constante' ? 'Constante' : c.nm === 'log10(população)' ? 'log10(população), por 10× mais habitantes' : c.nm + ' (+10 p.p.)') }, { h: 'Efeito na razão', n: 1, f: c => sgn(c.b, 3) }, { h: 'Erro-padrão', n: 1, f: c => fmt(c.se, 3) }, { h: 'Significância', n: 1, f: c => pfmt(c.p) }], olsRaz.coef.filter(c => c.nm !== 'Constante'));
     host.append(cap, t.firstChild); $('#t4').appendChild(host);
+}
+
+/* =========================================================
+   5. Indústria, emprego formal e salário
+   ========================================================= */
+const ind5 = M.map(m => m.ind), formal5 = M.map(m => m.formal);
+const rhoIF = spearman(ind5, formal5);
+const OUT5 = [['sal', 'Salário médio formal', 'Salário formal'], ['mediana', 'Renda mediana do morador', 'Renda mediana'], ['razao', 'Concentração (razão)', 'Concentração']];
+const rho5 = OUT5.map(([k, l, ls]) => ({ k, l, ls, ind: spearman(ind5, M.map(m => m[k])), formal: spearman(formal5, M.map(m => m[k])) }));
+const indQ1 = quant(ind5, 0.25), indQ3 = quant(ind5, 0.75);
+const gHi = M.filter(m => m.ind >= indQ3), gLo = M.filter(m => m.ind <= indQ1);
+const g5 = Object.fromEntries(['sal', 'mediana', 'razao', 'formal', 'agro', 'pop'].map(k => [k, {
+    hi: median(gHi.map(m => m[k])), lo: median(gLo.map(m => m[k])), p: mannWhitney(gHi.map(m => m[k]), gLo.map(m => m[k])).p
+}]));
+const names5 = ['Constante', 'Agropecuária', 'Indústria', 'Administração pública', 'Empregos formais', 'log10(população)'];
+const X5 = M.map(m => [1, m.agro / 10, m.ind / 10, m.adm / 10, m.formal / 10, Math.log10(m.pop)]);
+const mod5 = { razao: ols(X5, M.map(m => m.razao), names5), sal: ols(X5, M.map(m => Math.log(m.sal)), names5), mediana: ols(X5, M.map(m => Math.log(m.mediana)), names5) };
+const co5 = (mdl, nm) => mod5[mdl].coef.find(c => c.nm === nm);
+const pctEff = b => (Math.exp(b) - 1) * 100;
+const ex5 = ['Serafina Corrêa', 'Tapejara', 'Caxias do Sul'].map(n => M.find(m => m.nome === n)).filter(Boolean);
+const topFormal = [...M].sort((a, b) => b.formal - a.formal)[0];
+const pctRank = (k, v) => Math.round(100 * M.filter(m => m[k] < v).length / M.length);
+const bold = t => { const e = document.createElement('b'); e.textContent = t; return e; };
+
+$('#a5lead').textContent = 'A pergunta: ter grandes empregadores industriais, como frigoríficos, laticínios ou metalúrgicas, deixa a renda da cidade mais alta e menos concentrada? E eles pagam mais? As tabelas do IBGE só trazem o tamanho das empresas por município até 2006, então uso dois indicadores indiretos: a fatia da indústria no valor adicionado e os empregos formais por habitante (Cadastro Central de Empresas, 2022, o mesmo ano do Censo). Os dois andam muito juntos: correlação de ' + fmt(rhoIF.rho, 2) + '.';
+{
+    const sig2 = g5.mediana.p < 0.001 && g5.razao.p < 0.001 ? ' (p < 0,001 nos dois)' : ' (' + pfmt(g5.mediana.p) + '; ' + pfmt(g5.razao.p) + ')';
+    const salTxt = g5.sal.p >= 0.05 ? ' (' + pfmt(g5.sal.p) + ', sem diferença detectável)' : ' (' + pfmt(g5.sal.p) + ')';
+    $('#a5note1').replaceChildren('Separando o quarto de municípios mais industrial do quarto menos industrial: renda mediana de ', bold(brl(g5.mediana.hi) + ' contra ' + brl(g5.mediana.lo)),
+        ' e razão de ' + fmt(g5.razao.hi, 2) + ' contra ' + fmt(g5.razao.lo, 2) + sig2 + ', com ', bold(fmt(g5.formal.hi, 0) + ' contra ' + fmt(g5.formal.lo, 0)),
+        ' empregos formais por 100 habitantes. Já o salário médio formal é de ', bold(brl(g5.sal.hi) + ' contra ' + brl(g5.sal.lo)), salTxt + '. Atenção: o grupo menos industrial é sobretudo agrícola (agropecuária de ' + fmt(g5.agro.lo, 0) + '% do valor adicionado, contra ' + fmt(g5.agro.hi, 0) + '%) e tem cidades menores, então essa comparação mistura indústria com outras diferenças. O modelo abaixo controla isso.');
+}
+{
+    const cRi = co5('razao', 'Indústria'), cSi = co5('sal', 'Indústria'), cMf = co5('mediana', 'Empregos formais'), cMi = co5('mediana', 'Indústria');
+    const indAdds = cMi.b > 0 && cMi.p < 0.05;
+    $('#a5note2').replaceChildren('No modelo com todos os setores, o tamanho da cidade e o emprego formal, trocar 10 pontos de serviços por indústria se associa a razão ' + fmt(Math.abs(cRi.b), 3) + (cRi.b < 0 ? ' menor' : ' maior') + ' (' + pfmt(cRi.p) + ') e a salário formal ' + sgn(pctEff(cSi.b), 1) + '% (' + pfmt(cSi.p) + '). Na renda mediana, o que pesa é o emprego formal: ',
+        bold('+10 empregos formais por 100 habitantes, ' + sgn(pctEff(cMf.b), 1) + '% de renda'), ' (' + pfmt(cMf.p) + '). ' + (indAdds ? 'Com o emprego formal fixo, a indústria ainda acrescenta ' + sgn(pctEff(cMi.b), 1) + '% por 10 pontos.' : 'Com o emprego formal fixo, a indústria não acrescenta renda (' + sgn(pctEff(cMi.b), 1) + '% por 10 pontos).'),
+        ' Uma leitura compatível com os dados, mas não comprovada por eles: a indústria eleva a renda típica ao empregar mais gente com carteira, não ao pagar mais por posto. Destacados no gráfico, com o percentil de empregos formais por habitante: ' + ex5.map(m => m.nome + ' (' + pctRank('formal', m.formal) + ')').join(', ') + '. Valores muito altos, como ' + topFormal.nome + ' (' + fmt(topFormal.formal, 0) + ' por 100 habitantes), incluem gente de cidades vizinhas, porque o emprego é contado onde a empresa está.');
+}
+
+fillLegend('#l5a', [['var(--s2)', 'Fatia da indústria no valor adicionado'], ['var(--s1)', 'Empregos formais por habitante']]);
+corrBars($('#c5a'), rho5.map(r => ({ l: r.l, ls: r.ls, s: [r.ind, r.formal] })),
+    [{ cls: 'bar-a', nm: 'fatia da indústria' }, { cls: 'bar-b', nm: 'empregos formais por habitante' }], 0.7,
+    'Correlação de Spearman da fatia da indústria e dos empregos formais por habitante com salário formal, renda mediana e concentração');
+
+const ind5Set = new Set(gHi.map(m => m.cod));
+const hl5 = new Set([...ex5.map(m => m.cod), topFormal.cod]);
+fillLegend('#l5b', [['var(--s2)', 'Quarto mais industrial (' + gHi.length + ')'], ['var(--ctx)', 'Demais (' + (M.length - gHi.length) + ')'], ['line', 'Tendência']]);
+const tr5 = (() => { const lx5 = formal5.map(Math.log), my = mean(M.map(m => m.mediana)), mx = mean(lx5); let sxy = 0, sxx = 0; M.forEach((m, i) => { sxy += (lx5[i] - mx) * (m.mediana - my); sxx += (lx5[i] - mx) ** 2; }); const b = sxy / sxx; return { a: my - b * mx, b }; })();
+makeChart($('#c5b'), W => (W < 560 ? 340 : 430), (chart, svg, W, H) => {
+    const m = { l: 58, r: 28, t: 10, b: 46 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const xd = [4, 90], yd = [500, 2500];
+    const sx = logScale(xd[0], xd[1], m.l, m.l + pw), sy = linScale(yd[0], yd[1], m.t + ph, m.t);
+    drawAxes(svg, { m, pw, ph, sx, sy, W, H, xt: [5, 10, 20, 40, 80], yt: [500, 1000, 1500, 2000, 2500], xf: v => fmt(v), yf: v => fmt(v), xTitle: narrow() ? 'Empregos formais por 100 hab. (escala log)' : 'Empregos formais por 100 habitantes, 2022 (escala logarítmica)', yTitle: 'Renda mediana domiciliar per capita (R$/mês, 2022)' });
+    const rankOf = mu => (hl5.has(mu.cod) ? 2 : 0) + (ind5Set.has(mu.cod) ? 1 : 0);
+    [...M].sort((a, b) => rankOf(a) - rankOf(b)).forEach(mu => {
+        const px = sx(mu.formal), py = sy(mu.mediana), isInd = ind5Set.has(mu.cod), isHl = hl5.has(mu.cod);
+        S('circle', { class: isHl ? (isInd ? 'dot-hi' : 'dot-ctx-hl') : (isInd ? 'dot-a' : 'dot-ctx'), cx: px, cy: py, r: isHl ? 5 : 3.6 }, svg);
+        chart.pts.push({ px, py, data: mu });
+    });
+    const lo = Math.log(Math.min(...formal5)), hi = Math.log(Math.max(...formal5)), pts = [];
+    for (let i = 0; i <= 60; i++) { const lx = lo + (hi - lo) * i / 60; pts.push(sx(Math.exp(lx)).toFixed(1) + ',' + sy(tr5.a + tr5.b * lx).toFixed(1)); }
+    S('polyline', { class: 'trend', points: pts.join(' ') }, svg);
+    const labs = [...ex5, topFormal].map(mu => ({ x: sx(mu.formal), y: sy(mu.mediana), text: mu.nome }));
+    placeLabels(labs, labs.map(l => ({ x: l.x, y: l.y })), { x0: m.l + 2, x1: m.l + pw, y0: m.t, y1: m.t + ph }).forEach(l => T(l.text, { class: 'lbl', x: l.x, y: l.y, 'text-anchor': l.a }, svg));
+    chart.tipFn = mu => cityTip(mu, [['empregos formais por 100 hab.', fmt(mu.formal, 1)], ['indústria no valor adicionado', fmt(mu.ind, 1) + '%'], ['renda mediana', brl(mu.mediana)], ['salário médio formal', brl(mu.sal)]]);
+}, 'Dispersão dos empregos formais por habitante contra a renda mediana dos 497 municípios do RS');
+
+tableTwin($('#t5'), [
+    { h: 'Mediana dos municípios', f: r => r.l }, { h: 'Quarto mais industrial', n: 1, f: r => r.f(g5[r.k].hi) },
+    { h: 'Quarto menos industrial', n: 1, f: r => r.f(g5[r.k].lo) }, { h: 'Diferença', n: 1, f: r => pfmt(g5[r.k].p) }
+], [
+    { k: 'sal', l: 'Salário médio formal', f: brl }, { k: 'mediana', l: 'Renda mediana', f: brl }, { k: 'razao', l: 'Razão média/mediana', f: v => fmt(v, 2) },
+    { k: 'formal', l: 'Empregos formais por 100 hab.', f: v => fmt(v, 1) }, { k: 'agro', l: 'Agropecuária no valor adicionado', f: v => fmt(v, 1) + '%' }, { k: 'pop', l: 'População', f: v => fmt(v) }
+]);
+{
+    const host = document.createElement('div'); host.style.marginTop = '.75rem';
+    const cap = document.createElement('p'); cap.className = 'note';
+    cap.textContent = 'Modelo: cada coluna é uma regressão com as fatias de agropecuária, indústria e administração pública (+10 pontos, em relação a serviços), os empregos formais (+10 por 100 habitantes) e o tamanho da cidade. Salário e renda em log, então os efeitos são percentuais. Erros-padrão robustos (HC3), n = ' + M.length + '. R²: razão ' + fmt(mod5.razao.r2, 2) + ', salário ' + fmt(mod5.sal.r2, 2) + ', renda ' + fmt(mod5.mediana.r2, 2) + '.';
+    const lab = nm => (nm === 'log10(população)' ? 'log10(população), por 10× mais habitantes' : nm === 'Empregos formais' ? 'Empregos formais (+10 por 100 hab.)' : nm + ' (+10 p.p.)');
+    const cell = (mdl, nm, isLog) => { const c = co5(mdl, nm); return (isLog ? sgn(pctEff(c.b), 1) + '%' : sgn(c.b, 3)) + ' (' + pfmt(c.p) + ')'; };
+    const t = document.createElement('div');
+    tableTwin(t, [{ h: 'Variável', f: r => lab(r.nm) }, { h: 'Razão', n: 1, f: r => cell('razao', r.nm, false) }, { h: 'Salário formal', n: 1, f: r => cell('sal', r.nm, true) }, { h: 'Renda mediana', n: 1, f: r => cell('mediana', r.nm, true) }],
+        names5.filter(n => n !== 'Constante').map(nm => ({ nm })));
+    host.append(cap, t.firstChild); $('#t5').appendChild(host);
 }
 
 /* ---------- destaques (topo) ---------- */
@@ -671,6 +796,10 @@ const tiles = [
     ['+' + pct(perm.ratio - 1), 'mais dispersão da razão em cidades com menos de 10 mil habitantes', 'frente às de 10 a 50 mil'],
     [fmt(indRho, 2), 'correlação entre a fatia da indústria e a renda mediana', 'a maior entre os quatro setores']
 ];
+{
+    const rFM = rho5.find(r => r.k === 'mediana').formal.rho, maxSect = Math.max(...rhoRows.map(r => Math.abs(r.mediana.rho)));
+    tiles.push([fmt(rFM, 2), 'correlação entre empregos formais por habitante e renda mediana', rFM > maxSect ? 'maior que a de qualquer setor' : 'setor com maior correlação: ' + fmt(maxSect, 2)]);
+}
 $('#tiles').replaceChildren(...tiles.map(([v, l, s]) => { const d = document.createElement('div'); d.className = 'tile'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'l'; b.textContent = l; const c = document.createElement('div'); c.className = 's'; c.textContent = s; d.append(a, b, c); return d; }));
 })();
 </script>
